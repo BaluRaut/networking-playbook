@@ -1,0 +1,1392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux &amp; Networking Pro Playbook — 60 Battle-Tested Topics</title>
+<meta name="description" content="The Linux and networking fundamentals every backend/DevOps engineer uses daily — real commands, real output, a plain-English analogy per topic, and the gotcha that bites.">
+<style>
+:root{
+  --bg:#0b0e14; --panel:#11151f; --card:#121826; --card2:#0f1420;
+  --border:#242c3d; --border2:#2e3850;
+  --text:#dce3f0; --muted:#8f99ad; --dim:#6b7488;
+  --lnx:#4ade80; --net:#60a5fa;
+  --green:#4ade80; --red:#f87171; --amber:#fbbf24;
+  --k:#ff7b9c; --s:#9ece6a; --key:#7aa2f7; --n:#ff9e64; --com:#565f89; --v:#e0af68; --cmd:#5eead4; --prompt:#565f89;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.6; font-size:16px;
+}
+.wrap{max-width:980px; margin:0 auto; padding:0 20px 80px}
+
+.hero{padding:56px 0 8px; text-align:center}
+.badge{
+  display:inline-block; font-size:.72rem; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--lnx); border:1px solid #1e3a28; background:#0d1a12;
+  padding:6px 14px; border-radius:999px; font-weight:600;
+}
+h1{
+  font-size:2.5rem; margin:18px 0 10px; letter-spacing:-.02em;
+  background:linear-gradient(90deg,#4ade80,#5eead4 50%,#60a5fa);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+}
+.sub{color:var(--muted); max-width:660px; margin:0 auto; font-size:1.02rem}
+
+.toolbar{
+  position:sticky; top:0; z-index:50; display:flex; justify-content:center; gap:8px;
+  padding:10px 0; margin-top:22px;
+  background:linear-gradient(var(--bg) 80%,transparent);
+}
+.toolbar button{
+  background:var(--panel); color:var(--muted); border:1px solid var(--border);
+  border-radius:8px; padding:6px 13px; font-size:.85rem; cursor:pointer; font-weight:600;
+}
+.toolbar button:hover{color:var(--text); border-color:var(--border2)}
+
+.toc{display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin:22px 0 10px}
+.toc a{
+  display:inline-flex; align-items:center; gap:7px; text-decoration:none;
+  background:var(--panel); border:1px solid var(--border); color:var(--muted);
+  font-size:.78rem; padding:5px 11px; border-radius:999px; transition:.15s;
+}
+.toc a b{color:var(--lnx); font-size:.72rem}
+.toc a.net-chip b{color:var(--net)}
+.toc a:hover{color:var(--text); border-color:var(--border2); background:#161b28}
+
+.part{
+  margin:64px 0 8px; text-align:center; font-size:.8rem; letter-spacing:.28em;
+  text-transform:uppercase; color:var(--dim); font-weight:700;
+}
+.part span{color:var(--lnx)}
+.part.net span{color:var(--net)}
+h2.cat{
+  margin:40px 0 14px; font-size:1.05rem; text-transform:uppercase; letter-spacing:.12em;
+  color:var(--muted); display:flex; align-items:center; gap:12px; font-weight:700;
+}
+h2.cat::before{content:""; width:26px; height:3px; background:var(--lnx); border-radius:2px}
+h2.cat.net::before{background:var(--net)}
+
+details.card{
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  margin:14px 0; overflow:hidden;
+}
+details.card[open]{border-color:var(--border2)}
+summary{
+  list-style:none; cursor:pointer; padding:16px 20px;
+  display:flex; align-items:baseline; gap:14px; user-select:none;
+}
+summary::-webkit-details-marker{display:none}
+summary:hover{background:var(--card2)}
+.num{
+  font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-weight:800;
+  color:var(--lnx); font-size:1.05rem; min-width:30px;
+}
+.net-card .num{color:var(--net)}
+.ttl{font-weight:700; font-size:1.06rem; flex:1}
+.star{
+  font-size:.66rem; font-weight:700; letter-spacing:.06em; white-space:nowrap;
+  color:var(--amber); border:1px solid #4d3d1a; background:#211a0b;
+  padding:2px 9px; border-radius:999px;
+}
+.chev{color:var(--dim); transition:.2s; font-size:.8rem}
+details[open] .chev{transform:rotate(90deg)}
+.body{padding:4px 22px 22px; border-top:1px solid var(--border)}
+.scenario{color:var(--muted); margin:14px 0 4px}
+.scenario b{color:var(--text)}
+
+.analogy{
+  display:flex; gap:12px; margin:14px 0; padding:13px 16px;
+  background:#131022; border:1px solid #2c2645; border-left:3px solid #a78bfa;
+  border-radius:0 10px 10px 0; color:#c7bfe8; font-size:.95rem;
+}
+.analogy .ic{font-size:1.1rem}
+.analogy b{color:#ddd6fe}
+
+.code{margin:14px 0; border:1px solid var(--border); border-radius:10px; overflow:hidden}
+.code-label{
+  font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700;
+  color:var(--dim); background:var(--card2); padding:6px 14px; border-bottom:1px solid var(--border);
+}
+pre{
+  background:#0c1018; padding:14px 16px; overflow-x:auto;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:.85rem; line-height:1.55; color:#c8d3e8;
+}
+.out pre{color:#9ac795}
+.k{color:var(--k)} .s{color:var(--s)} .key{color:var(--key)} .n{color:var(--n)}
+.com{color:var(--com); font-style:italic} .v{color:var(--v)} .cmd{color:var(--cmd); font-weight:600} .prompt{color:var(--prompt)}
+
+table{border-collapse:collapse; width:100%; margin:14px 0; font-size:.87rem}
+th,td{border:1px solid var(--border); padding:7px 12px; text-align:left}
+th{background:var(--card2); color:var(--muted); font-size:.78rem; text-transform:uppercase; letter-spacing:.08em}
+td{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.84rem}
+
+.dodont{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:16px 0}
+@media(max-width:720px){.dodont{grid-template-columns:1fr}}
+.do,.dont{border-radius:10px; padding:13px 16px; font-size:.92rem}
+.do{background:#0d1a12; border:1px solid #1e3a28}
+.dont{background:#1d1012; border:1px solid #43222a}
+.do h4{color:var(--green); font-size:.82rem; margin-bottom:8px; letter-spacing:.04em}
+.dont h4{color:var(--red); font-size:.82rem; margin-bottom:8px; letter-spacing:.04em}
+.do ul,.dont ul{margin-left:18px}
+.do li,.dont li{margin:5px 0; color:#b8c2d4}
+.do li::marker{color:var(--green)} .dont li::marker{color:var(--red)}
+.do code,.dont code,.benefit code,.gotcha code,.scenario code,.analogy code{
+  font-family:ui-monospace,Menlo,monospace; font-size:.85em; background:#0c1018;
+  border:1px solid var(--border); padding:1px 6px; border-radius:5px; color:#8fd3ff;
+}
+
+.benefit,.gotcha{margin:14px 0; padding:13px 16px; border-radius:0 10px 10px 0; font-size:.94rem}
+.benefit{background:#0d1a15; border:1px solid #1e3a2d; border-left:3px solid var(--green); color:#b9d6c4}
+.benefit b{color:#86efac}
+.gotcha{background:#1e1610; border:1px solid #43301a; border-left:3px solid var(--amber); color:#dcc6a4}
+.gotcha b{color:#fcd34d}
+
+.quiz{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:26px; margin:20px 0}
+.q{margin:20px 0; padding-bottom:18px; border-bottom:1px solid var(--border)}
+.q p.qt{font-weight:700; margin-bottom:10px}
+.q label{display:block; padding:7px 12px; margin:5px 0; border:1px solid var(--border); border-radius:8px; cursor:pointer; font-size:.93rem; color:var(--muted)}
+.q label:hover{border-color:var(--border2); color:var(--text)}
+.q label.right{border-color:var(--green); color:var(--green); background:#0d1a12}
+.q label.wrong{border-color:var(--red); color:var(--red); background:#1d1012}
+.q .why{display:none; margin-top:8px; font-size:.88rem; color:var(--amber)}
+.q.revealed .why{display:block}
+.quiz .score{font-size:1.2rem; font-weight:800; color:var(--lnx); margin-top:14px; display:none}
+.quiz button.check{
+  background:var(--lnx); color:#05150b; border:0; padding:11px 26px; border-radius:10px;
+  font-weight:700; font-size:.95rem; cursor:pointer; margin-top:10px;
+}
+.quiz button.check:hover{filter:brightness(1.1)}
+.quiz .qhead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:6px}
+.quiz .qintro{color:var(--muted);font-size:.95rem;max-width:640px}
+.quiz .qmeta{font-size:.85rem;color:var(--dim);white-space:nowrap}
+.quiz .qmeta b{color:var(--lnx)}
+.progress{height:7px;background:var(--card2);border:1px solid var(--border);border-radius:999px;overflow:hidden;margin:14px 0 4px}
+.progress > i{display:block;height:100%;width:0;background:var(--lnx);transition:width .4s}
+.q p.qt .tag{font-size:.68rem;font-weight:700;color:var(--lnx);border:1px solid var(--border);background:var(--card2);border-radius:999px;padding:1px 8px;margin-right:8px;letter-spacing:.04em}
+.q.revealed label{cursor:default}
+.quiz .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.quiz button.next{background:#1c2333;color:var(--text);border:1px solid var(--border2);padding:10px 22px;border-radius:10px;font-weight:700;font-size:.92rem;cursor:pointer}
+.quiz button.reset{background:transparent;color:var(--dim);border:1px solid var(--border);font-weight:600;font-size:.82rem;padding:7px 14px;border-radius:10px;cursor:pointer}
+.quiz button:disabled{opacity:.4;cursor:not-allowed}
+.quiz button:hover{filter:brightness(1.08)}
+.quiz .roundscore{font-weight:700;color:var(--lnx);font-size:1rem;margin-left:6px}
+.quiz .done{display:none;text-align:center;padding:14px}
+.quiz .done h3{font-size:1.4rem;margin-bottom:8px;color:var(--lnx)}
+.quiz .done p{color:var(--muted)}
+
+footer{margin-top:60px; text-align:center; color:var(--dim); font-size:.85rem}
+footer a{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <span class="badge">Networking · The Wire · Field Guide · 26 Topics</span>
+  <h1>Networking Pro Playbook</h1>
+  <p class="sub">The wire under everything you deploy — IP, TCP/UDP, DNS, TLS, HTTP, proxies, firewalls, and a debug-in-layers runbook. Each topic with real commands, real output, a plain-English <b>analogy</b>, and the gotcha that pages you.</p>
+  <p style="text-align:center;margin-top:12px;font-size:.78rem;color:var(--dim)">Companion to the Linux playbook — that half is the machine; this half is the wire</p>
+</header>
+
+<div class="toolbar">
+  <button onclick="fz(-1)">A−</button>
+  <button onclick="fz(0)">A</button>
+  <button onclick="fz(1)">A+</button>
+  <button onclick="toggleAll(true)">Expand all</button>
+  <button onclick="toggleAll(false)">Collapse all</button>
+</div>
+
+<nav class="toc">
+  <a class="net-chip" href="#t1"><b>01</b>The layer model</a>
+  <a class="net-chip" href="#t2"><b>02</b>IP &amp; CIDR</a>
+  <a class="net-chip" href="#t3"><b>03</b>MAC &amp; ARP</a>
+  <a class="net-chip" href="#t4"><b>04</b>Routing &amp; gateways</a>
+  <a class="net-chip" href="#t5"><b>05</b>TCP — the handshake</a>
+  <a class="net-chip" href="#t6"><b>06</b>UDP — fire &amp; forget</a>
+  <a class="net-chip" href="#t7"><b>07</b>Ports &amp; sockets — ss</a>
+  <a class="net-chip" href="#t8"><b>08</b>NAT</a>
+  <a class="net-chip" href="#t9"><b>09</b>DNS — dig it</a>
+  <a class="net-chip" href="#t10"><b>10</b>resolv.conf &amp; hosts</a>
+  <a class="net-chip" href="#t11"><b>11</b>HTTP anatomy</a>
+  <a class="net-chip" href="#t12"><b>12</b>TLS &amp; certificates</a>
+  <a class="net-chip" href="#t13"><b>13</b>Load balancing L4/L7</a>
+  <a class="net-chip" href="#t14"><b>14</b>Reverse proxies — nginx</a>
+  <a class="net-chip" href="#t15"><b>15</b>ping &amp; ICMP</a>
+  <a class="net-chip" href="#t16"><b>16</b>traceroute &amp; mtr</a>
+  <a class="net-chip" href="#t17"><b>17</b>curl mastery</a>
+  <a class="net-chip" href="#t18"><b>18</b>tcpdump</a>
+  <a class="net-chip" href="#t19"><b>19</b>TIME_WAIT &amp; states</a>
+  <a class="net-chip" href="#t20"><b>20</b>iptables &amp; nftables</a>
+  <a class="net-chip" href="#t21"><b>21</b>ssh mastery &amp; tunnels</a>
+  <a class="net-chip" href="#t22"><b>22</b>ip addr &amp; interfaces</a>
+  <a class="net-chip" href="#t23"><b>23</b>The "is it down?" runbook</a>
+  <a class="net-chip" href="#t24"><b>24</b>Latency vs bandwidth</a>
+  <a class="net-chip" href="#t25"><b>25</b>Cloud networking mapped</a>
+  <a class="net-chip" href="#t26"><b>26</b>Capstone — one request</a>
+  <a href="#quiz"><b>🎯</b>Quiz — test yourself</a>
+</nav>
+
+<main>
+<div class="part net">Part I — <span>Networking · The Wire</span></div>
+<h2 class="cat net">How Packets Travel</h2>
+
+<details class="card net-card" id="t1">
+<summary><span class="num">01</span><span class="ttl">The layer model — the postal system</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> "is it a DNS problem, a routing problem, a firewall problem, or an app problem?" The layer model is the map that tells you <i>where</i> to look — and the order to debug in (topic 23).</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> sending a package through the <b>postal system</b>. You write a letter (the app data — HTTP), seal it in an envelope with a full address (TCP/IP), the post office routes it city-to-city (IP routing), trucks carry it road-by-road (Ethernet/wifi — the physical hop). Each layer only cares about its own job and trusts the layer below. A failure at any layer looks different — and you debug bottom-up.</div></div>
+<div class="code"><div class="code-label">The layers, mapped to what you actually touch</div><pre class="sh">Layer            Deals with          You debug it with
+─────────────────────────────────────────────────────────
+App (HTTP/TLS)   the actual request  curl, browser devtools (topics 11,12,17)
+Transport (TCP)  ports, reliability  ss, telnet, nc      (topics 5,7)
+Network (IP)     addresses, routing  ping, traceroute, ip route (topics 2,4,15,16)
+Link (Ethernet)  the local hop, MAC  arp, ip link        (topic 3)
+
+# the two models: OSI has 7 layers (academic), TCP/IP has 4 (practical).
+# You mostly reason in 4: App, Transport, Internet, Link.
+# Mnemonic for encapsulation: each layer WRAPS the one above in its own header.</pre></div>
+<div class="code out"><div class="code-label">One HTTP request, unwrapped (what tcpdump shows you — topic 52)</div><pre>[ Ethernet | IP | TCP | TLS | HTTP GET /api ]
+  └MAC→MAC  └IP→IP └port └encrypt └the actual request
+  each layer's header wraps the payload of the layer above — like nested envelopes.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Debug bottom-up: is the host reachable (IP/ping)? port open (TCP/ss)? DNS resolving? app responding? (topic 23 is this as a runbook)</li>
+<li>Map each symptom to a layer — "connection refused" is transport, "name not resolved" is DNS, "403" is app</li>
+<li>Reason in the 4-layer TCP/IP model; leave OSI's 7 layers for exams</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Debugging top-down ("must be the app") when the host isn't even pingable — you'll waste an hour above a broken lower layer</li>
+<li>Conflating layers — a working <code>ping</code> (IP) says nothing about whether the <i>port</i> (TCP) or <i>app</i> is up</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> the layer model is the master index for every networking tool and problem — each tool operates at one layer, each error belongs to one layer, and debugging in layer order (bottom-up) finds the break fast instead of guessing. Every remaining topic in this part slots into a layer.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the classic time-sink is debugging the wrong layer — spending an hour on app config when <code>ping</code> already fails (the box is unreachable at the IP layer), or blaming the network when it's a DNS (name→IP) issue one layer up from routing. The discipline "confirm each layer before climbing to the next" (topic 23) is what separates a 5-minute diagnosis from an afternoon.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t2">
+<summary><span class="num">02</span><span class="ttl">IP addresses &amp; CIDR — the addressing system</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> "is <code>10.0.5.20</code> in the <code>10.0.0.0/16</code> subnet? can these two hosts talk directly? what does <code>/24</code> mean?" CIDR is the math behind every VPC, firewall rule, and route.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> an IP address is a <b>street address</b>; the subnet (the <code>/N</code>) is the <b>postcode that says which houses share a street</b>. A <code>/24</code> is a street of 256 houses (<code>10.0.5.0</code>–<code>10.0.5.255</code>); a <code>/16</code> is a whole town of 65,536. Houses on the same street talk directly (local delivery); different streets go through the post office (the gateway/router — topic 38). The <code>/N</code> is literally how many address bits are "the street," leaving the rest for "the house."</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># CIDR: /N = how many bits are the NETWORK; the rest are HOSTS.
+10.0.5.0/24    → network 10.0.5.x, hosts .1–.254   (256 addresses, ~254 usable)
+10.0.0.0/16    → 10.0.x.x                          (65,536 addresses)
+0.0.0.0/0      → "everything" (default route / allow-all firewall rule)
+
+# private ranges (RFC1918) — free to use internally, never routed on the internet:
+10.0.0.0/8      172.16.0.0/12      192.168.0.0/16
+
+$ ipcalc 10.0.5.20/24        # do the math for you
+Network:   10.0.5.0/24
+HostMin:   10.0.5.1   HostMax: 10.0.5.254   Broadcast: 10.0.5.255
+$ ip -c addr                 # this host's addresses + their CIDR
+inet 10.0.5.20/24 ...        ← "I'm .20 on the 10.0.5.0/24 street"</pre></div>
+<div class="code out"><div class="code-label">The everyday question: same subnet = direct talk?</div><pre>10.0.5.20/24  and  10.0.5.99   → same /24 street → talk DIRECTLY (topic 3)
+10.0.5.20/24  and  10.0.9.99   → different streets → via the GATEWAY (topic 4)
+smaller /N (e.g. /16) = bigger network;  bigger /N (e.g. /28) = smaller</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Read <code>/N</code> as "network size": <code>/24</code>=256, <code>/16</code>=65k, <code>/8</code>=16M — smaller number, bigger network</li>
+<li>Use <code>ipcalc</code>/<code>sipcalc</code> for range math instead of doing binary in your head</li>
+<li>Size VPC subnets generously — pod-per-IP designs (DevOps playbook EKS topic 39) drink addresses fast</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Overlapping CIDR ranges across VPCs you'll ever peer/VPN — you can't route between two <code>10.0.0.0/16</code>s</li>
+<li>Reading <code>/24</code> as "bigger than /16" — it's backwards; more prefix bits = fewer hosts</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> CIDR is the one piece of networking math you truly must own — it defines who's local vs remote (topic 3 vs 4), what a firewall rule covers (topic 20), and how cloud VPCs carve up address space (topic 25). Once "same subnet = direct, else via gateway" clicks, routing stops being mysterious.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the prefix length is inverse to size and it trips everyone — <code>/28</code> is a <i>tiny</i> 16-address block, <code>/8</code> is enormous. Sizing a subnet <code>/28</code> "to be safe" then running out of IPs is a classic (DevOps playbook EKS topic 34's exact warning). And two networks with overlapping ranges can never be joined — pick non-overlapping CIDRs from day one, because re-IP'ing later is a migration.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t3">
+<summary><span class="num">03</span><span class="ttl">MAC &amp; ARP — the local delivery layer</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> two machines on the same subnet (topic 2) actually reach each other by MAC address, not IP — and ARP is the "who has this IP?" broadcast that bridges the two. Rarely touched, but it explains a whole class of LAN weirdness.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> the IP address is someone's <b>name</b>; the MAC address is their <b>actual face</b> in the room. To hand a note to "Priya" on your street, you shout "<b>who is Priya?</b>" (ARP request), she says "me, here!" (ARP reply with her MAC/face), and now you deliver directly. Your address book (ARP cache) remembers her face for a while so you don't shout every time.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh">$ ip neigh                    # the ARP cache: IP → MAC on the local link
+10.0.5.1   dev eth0 lladdr 0a:1b:2c:3d:4e:5f REACHABLE   ← the gateway's MAC
+10.0.5.99  dev eth0 lladdr 0a:aa:bb:cc:dd:ee STALE
+
+$ ip link                     # this host's interfaces + THEIR MACs
+2: eth0: ... link/ether 0a:11:22:33:44:55
+
+# the sequence for talking to a same-subnet host:
+#   1. IP layer: "10.0.5.99 is on my /24 → it's LOCAL, deliver directly"
+#   2. ARP: broadcast "who has 10.0.5.99?" → reply "me, MAC 0a:aa:.."
+#   3. send the frame to that MAC. (Different subnet? ARP for the GATEWAY instead.)
+$ arping 10.0.5.99            # probe a specific IP at layer 2</pre></div>
+<div class="code out"><div class="code-label">Output — a duplicate-IP incident, seen in ARP</div><pre>$ ip neigh | grep 10.0.5.50
+10.0.5.50 dev eth0 lladdr 0a:aa:.. REACHABLE
+# ...intermittent connectivity to .50? two machines answering ARP for one IP
+# = IP conflict. ARP is where you catch it.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>ip neigh</code> to inspect the ARP cache when same-subnet connectivity is flaky</li>
+<li>Suspect an <b>IP conflict</b> (two hosts, one IP) when a LAN address is intermittently reachable — ARP shows the flapping MAC</li>
+<li>Understand that same-subnet = MAC delivery, cross-subnet = deliver to the gateway's MAC (topic 4)</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Reaching for ARP on <i>cross-subnet</i> problems — ARP is local-link only; remote reachability is routing (topic 4)</li>
+<li>Ignoring duplicate-IP symptoms — "works, then doesn't, then works" on a LAN is often two devices fighting over one address</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> ARP is the invisible glue between the IP world (topic 2) and the physical wire — knowing it exists explains why same-subnet hosts talk "directly," why cross-subnet traffic goes to the gateway's MAC, and how to catch IP conflicts. You'll rarely touch it, but when LAN connectivity is haunted, <code>ip neigh</code> is where the ghost shows up.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> a stale or poisoned ARP cache causes "the IP is right but traffic goes nowhere" — the host is delivering frames to a MAC that moved or never existed. Clearing the entry (<code>ip neigh flush</code>) or waiting for it to expire fixes it. And in clouds, ARP is largely virtualized away (the SDN handles it), which is why you rarely debug it on EC2 — but on bare metal and home/office LANs it's very real.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t4">
+<summary><span class="num">04</span><span class="ttl">Routing &amp; gateways — how packets leave the subnet</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> a packet for <code>142.250.x.x</code> (Google) isn't on your subnet — where does it go? The routing table decides the next hop for every destination, and the <i>default route</i> is the catch-all to the outside world.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> the routing table is a <b>signpost at every intersection</b>. For each destination it says "that way." Local street? Deliver directly (topic 3). Anywhere else? "Take it to the post office" — the <b>default gateway</b> (<code>0.0.0.0/0</code>), the road out of town. The most <i>specific</i> sign wins: a sign for "123 Main St" overrides the general "everything else → gateway."</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh">$ ip route                    # the routing table (signposts)
+default via 10.0.5.1 dev eth0        ← catch-all: everything → the gateway
+10.0.5.0/24 dev eth0 proto kernel    ← my local subnet: deliver directly
+$ ip route get 142.250.72.14  # ask "how would I reach THIS?"
+142.250.72.14 via 10.0.5.1 dev eth0   ← via the gateway (it's not local)
+$ ip route get 10.0.5.99
+10.0.5.99 dev eth0 src 10.0.5.20      ← direct (same subnet, topic 37)
+
+# the decision, every packet:
+#   dest in a local subnet route? → deliver directly (ARP for it)
+#   else → most-specific matching route's next-hop
+#   else → default route (the gateway)
+#   no default + not local? → "Network is unreachable"</pre></div>
+<div class="code out"><div class="code-label">Output — "no route" vs "reached the gateway"</div><pre>$ ip route get 8.8.8.8            # healthy:
+8.8.8.8 via 10.0.5.1 dev eth0    ← knows the way out
+# broken (no default route):
+$ ping 8.8.8.8
+connect: Network is unreachable   ← no signpost for "everything else"</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>ip route get &lt;dest&gt;</code> to see exactly how THIS host would reach a destination — the fastest routing debug</li>
+<li>Confirm a working default route (<code>default via …</code>) when a host can reach its subnet but not the internet</li>
+<li>Read "most specific route wins" — a <code>/32</code> host route overrides the <code>/0</code> default</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Assuming "can ping the gateway but not the internet" is DNS — check the gateway's <i>own</i> upstream/NAT (topic 8) and your default route first</li>
+<li>Adding overlapping/conflicting static routes by hand without understanding specificity — you can silently blackhole traffic</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> routing is the layer that turns "my subnet" into "the whole internet" — and <code>ip route get</code> makes it inspectable per-destination, so "why can't this host reach X" becomes a one-command answer. It's the same model in cloud VPC route tables (topic 25): local routes plus a default route to an internet/NAT gateway.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> "reaches its own subnet but nothing beyond" is almost always a <b>missing or wrong default route</b> — <code>Network is unreachable</code> is the kernel saying "no signpost for that destination." And a subtle one: you can <code>ping</code> the gateway (it's on your subnet) yet have no internet if the <i>gateway's</i> upstream/NAT is broken — reaching the gateway proves the local hop, not the path beyond it (debug in layers, topic 57).</div>
+</div>
+</details>
+
+<details class="card net-card" id="t5">
+<summary><span class="num">05</span><span class="ttl">TCP — the reliable handshake</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> nearly everything you deploy (HTTP, SSH, databases) rides on TCP. Its three-way handshake and connection states explain "connection refused" vs "timed out" — two very different failures.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> TCP is a <b>phone call with confirmations</b>. The handshake is "Can you hear me?" → "Yes, can you hear me?" → "Yes" (SYN → SYN-ACK → ACK) before anyone talks. Then every sentence gets an "mm-hm" (ACK); miss one and it's repeated (retransmission). Compare to UDP (topic 6), which is shouting a postcard and hoping. TCP guarantees <i>ordered, complete, acknowledged</i> delivery — at the cost of that setup chatter.</div></div>
+<div class="code"><div class="code-label">Code — the handshake &amp; what failures mean</div><pre class="sh"># the 3-way handshake (what tcpdump shows — topic 52):
+#   client → SYN         "let's talk, my seq=X"
+#   server → SYN-ACK     "ok, my seq=Y, ack X+1"
+#   client → ACK         "got it" → connection ESTABLISHED
+
+# test if a TCP port is open (no app data, just the handshake):
+$ nc -zv db.prod 5432
+Connection to db.prod 5432 port [tcp] succeeded!     ← handshake completed
+$ nc -zv db.prod 5432
+nc: connect to db.prod port 5432 (tcp) failed: Connection refused
+#                                              └ host UP, nothing LISTENING there
+$ nc -zv db.prod 5432
+nc: connect ... Operation timed out
+#              └ no reply at all: firewall dropping, or host down (topic 20,23)</pre></div>
+<div class="code out"><div class="code-label">The two failures — memorize this distinction</div><pre>Connection REFUSED  → reached the host; no service on that port (or it's down)
+                      (the host actively said "no" — RST packet)
+Connection TIMED OUT → no response at all; firewall DROP, wrong IP, or host dead
+                      (silence — nobody answered the SYN)</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>nc -zv host port</code> (or <code>/dev/tcp</code>) to test reachability at the TCP layer — isolates network from app</li>
+<li>Read "refused" as "host reachable, port closed" and "timed out" as "something is dropping/silent" — different fixes</li>
+<li>Understand handshake cost — for many tiny requests, connection reuse/keep-alive matters (topic 11)</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Treating "refused" and "timed out" as the same "can't connect" — one is a closed port, the other is usually a firewall (topic 20)</li>
+<li>Blaming the app when the TCP handshake itself fails — the app never even saw the connection</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> TCP's guarantees (ordered, complete, acknowledged) are why you can build reliable protocols on top without reinventing retries — and its failure modes are diagnostic gold: refused vs timed out instantly narrows a connectivity problem to "port/service" vs "firewall/routing" (topic 23 builds a runbook on exactly this).</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the refused-vs-timeout distinction is the single most useful networking tell, and people conflate them. <b>Refused</b> = a RST packet came back: the host is up and reachable, but nothing is listening (service down, wrong port). <b>Timed out</b> = pure silence: a firewall is DROPping (not REJECTing) your SYN, the IP is wrong, or the host is dead. Same "can't connect" symptom, completely different root causes and fixes.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t6">
+<summary><span class="num">06</span><span class="ttl">UDP — fire and forget</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> DNS (topic 9), video calls, game servers, metrics (statsd) — all UDP. No handshake, no guarantees, no retransmit. Knowing when that trade-off is right (and its debugging quirks) matters.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> if TCP is a phone call with confirmations, UDP is <b>shouting a postcard over the fence</b>: no "can you hear me?", no waiting for a reply, no resend if it's lost. Fast and cheap, but you never know if it arrived. Perfect when <b>a late packet is worse than a lost one</b> — in a video call, a re-sent frame from two seconds ago is useless; just move on.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># UDP: no connection, no handshake, no delivery guarantee.
+#   application handles what it needs (DNS retries, video conceals loss).
+
+$ dig google.com              # DNS — classic UDP (port 53), falls back to TCP if big
+$ nc -u -zv 10.0.5.1 514      # -u = UDP; "succeeded" here is WEAKER than TCP's:
+#   UDP has no handshake, so "open" often just means "not actively refused"
+
+# why UDP for these:
+#   DNS      one tiny question, one answer; a retry is cheaper than a handshake
+#   Video/VoIP  a lost frame is skipped; a LATE frame is useless
+#   Metrics/statsd  fire thousands/sec; losing a few data points is fine
+#   QUIC/HTTP3  builds its OWN reliability on UDP, dodging TCP's limitations</pre></div>
+<div class="code out"><div class="code-label">TCP vs UDP — the trade in one table</div><pre>                TCP                        UDP
+handshake       yes (setup cost)           none (instant)
+delivery        guaranteed, ordered        best-effort, may drop/reorder
+use when        correctness matters         speed/latency matters, loss tolerable
+examples        HTTP, SSH, databases        DNS, video, games, metrics, QUIC</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>UDP when low latency beats guaranteed delivery and the app tolerates/handles loss (media, metrics, DNS)</li>
+<li>Remember DNS is UDP-first — a DNS issue can be a UDP/port-53 issue (firewalls sometimes block it, topic 44)</li>
+<li>Expect app-level reliability on top of UDP (QUIC, DNS retries) rather than the transport providing it</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Trusting <code>nc -u</code> "open" like a TCP success — with no handshake, UDP reachability tests are inherently ambiguous</li>
+<li>Choosing UDP for data that must arrive intact (files, transactions) — that's TCP's job; don't rebuild TCP badly</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> the TCP/UDP choice is the fundamental transport trade-off — reliability vs latency — and recognizing which a protocol uses tells you how it fails and how to debug it. DNS being UDP explains its speed and its occasional firewall/MTU quirks; QUIC/HTTP3 on UDP explains the industry's move to app-controlled reliability.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> UDP reachability is genuinely hard to test — no handshake means <code>nc -u</code> often reports "succeeded" even when nothing's listening (the OS didn't get a rejection), so a "working" UDP test can lie. Confirm at the app layer (<code>dig @server</code> for DNS) instead. And large UDP packets can silently fragment or hit MTU limits (topic 24) — a DNS response too big for UDP triggers a TCP retry, which a port-53-TCP firewall block then breaks mysteriously.</div>
+</div>
+</details>
+<details class="card net-card" id="t7">
+<summary><span class="num">07</span><span class="ttl">Ports &amp; sockets — ss, the netstat successor</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> "what's listening on port 8080? is anything even bound? who's holding all these connections?" <code>ss</code> answers all of it — the first command in most connectivity debugging.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> a host is an <b>apartment building</b>; ports are <b>numbered mail slots</b> (0–65535). A service "listening" on a port is a <b>tenant who put their name on slot 8080</b> and answers mail there. <code>ss</code> is reading the <b>building directory</b>: which slots have a tenant (LISTEN), which have active correspondence going (ESTABLISHED), and who they're talking to.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># the flags to memorize: -t tcp  -u udp  -l listening  -n numeric  -p process
+$ ss -tlnp                    # all TCP listeners + which process owns them
+State   Local Address:Port    Process
+LISTEN  0.0.0.0:80            users:(("nginx",pid=712))    ← world-facing
+LISTEN  127.0.0.1:5432        users:(("postgres",pid=901)) ← localhost ONLY (safe)
+LISTEN  *:22                  users:(("sshd",pid=688))
+
+$ ss -tnp state established    # active connections + peers
+$ ss -tn dst 10.0.5.99         # connections to a specific host
+$ ss -s                        # summary counts by state (topic 19)
+
+# "port already in use" — find the culprit:
+$ ss -tlnp | grep :8080
+$ sudo lsof -i :8080           # alternative, also shows the PID</pre></div>
+<div class="code out"><div class="code-label">Output — the security tell in one glance</div><pre>LISTEN 0.0.0.0:5432   ← DANGER: postgres exposed to the WORLD
+LISTEN 127.0.0.1:5432 ← SAFE: only reachable from this host
+# 0.0.0.0 = "all interfaces, anyone can reach"; 127.0.0.1 = "this machine only"</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>ss -tlnp</code> as your first move for "is the service even up and bound?" — before blaming the network</li>
+<li>Check the bind address: <code>0.0.0.0</code> = exposed to all, <code>127.0.0.1</code> = localhost-only (a security-critical distinction)</li>
+<li><code>ss -tlnp | grep :PORT</code> to resolve "address already in use" to a PID</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Debugging "connection refused" (topic 5) from the client before checking <code>ss</code> on the server — the service may not be listening at all</li>
+<li>Binding databases/admin ports to <code>0.0.0.0</code> without a firewall — you've published them to anyone who can route to the host</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> <code>ss</code> is the bridge between "the app" and "the network" — it proves whether a service is actually listening, on which interface, and who's connected, turning vague "can't connect" reports into "postgres is bound to localhost only, that's why the remote client is refused." It replaces the older <code>netstat</code> and is faster on busy hosts.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the bind-address gotcha causes both bugs and breaches — a service on <code>127.0.0.1</code> works locally but refuses every remote client ("connection refused" from another host, fine from <code>localhost</code>), while a database accidentally on <code>0.0.0.0</code> is exposed to the entire network. The <code>Local Address</code> column is the answer to a huge fraction of "why can/can't X reach this service" questions.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t8">
+<summary><span class="num">08</span><span class="ttl">NAT — one public IP, many private hosts</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> your laptop, your phone, and 50 servers in a VPC all share one public IP to reach the internet. NAT is the translation that makes private addresses (topic 2) work with the public internet — and it explains a lot of "why can't they reach <i>in</i>?" confusion.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> NAT is a <b>company receptionist with one public phone number</b>. Employees (private hosts) call out through her; she notes "extension 205 is calling Acme" and puts her number on the caller ID. Acme replies to the public number, she checks her notes, and routes it back to extension 205. Outbound works seamlessly — but Acme can't <i>initiate</i> a call to extension 205, because from outside, only the receptionist's number exists.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># SNAT/masquerade: private source IP → public IP on the way OUT
+#   10.0.5.20:44321 → [NAT] → 203.0.113.5:61000 → internet
+#   reply comes back to 203.0.113.5:61000 → [NAT translates back] → 10.0.5.20:44321
+
+$ curl ifconfig.me           # what the internet SEES as your source IP
+203.0.113.5                  # not your private 10.0.5.20 — NAT rewrote it
+
+# see NAT rules on a Linux router/host:
+$ sudo iptables -t nat -L -n -v         # topic 54
+# the cloud equivalents:
+#   NAT Gateway  → private subnets reach OUT to the internet (egress)
+#   but INBOUND needs a Load Balancer / public IP / port-forward (DNAT)
+
+# port forwarding (DNAT) — the manual "let outsiders reach extension 205":
+#   public :443 → private 10.0.5.20:8443</pre></div>
+<div class="code out"><div class="code-label">Output — the asymmetry that confuses everyone</div><pre>OUTBOUND (private → internet):  works automatically via NAT/masquerade
+INBOUND  (internet → private):  BLOCKED unless explicitly forwarded (DNAT)
+                                 or fronted by a load balancer / public IP.
+# "my server can pull updates but nobody can reach my app" = this, exactly.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Understand NAT as directional: outbound is automatic, inbound needs explicit forwarding or a load balancer (topic 13)</li>
+<li><code>curl ifconfig.me</code> to see your public/NAT'd source IP — useful for allowlists and "which IP do I appear as?"</li>
+<li>In cloud: NAT Gateway for private-subnet egress, LB/public IP for ingress — two different jobs</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Expecting inbound connections to a NAT'd/private host to "just work" — from outside, that host has no reachable address</li>
+<li>Forgetting NAT in allowlists — a whole office/VPC appears as ONE source IP, so "allow this user's IP" allows everyone behind that NAT</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> NAT is what let a world with ~4 billion IPv4 addresses connect billions of devices — private ranges (topic 2) reused everywhere, translated to shared public IPs on the way out. Its outbound-easy/inbound-hard asymmetry explains cloud architecture (private subnets + NAT Gateway for egress, load balancers for ingress — topic 59) and a huge share of "can reach out but not in" tickets.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the directional asymmetry is the eternal confusion — a private host behind NAT can happily <code>apt update</code> and call APIs (outbound), yet nobody on the internet can reach its app (inbound), because it has no publicly reachable address. The fix is never "more NAT" — it's a load balancer, public IP, or port-forward (DNAT). And NAT collapses many hosts to one source IP, silently breaking per-user IP allowlists and rate limits.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t9">
+<summary><span class="num">09</span><span class="ttl">DNS — dig it, because it's always DNS</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> names → IPs. Every request starts here, and a shocking share of "the network is broken" incidents are actually DNS — stale caches, wrong records, slow resolvers. <code>dig</code> is how you see the truth.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> DNS is the <b>internet's phone book</b>, but distributed and cached at every level. Ask for <code>api.shop.com</code> and the question walks up a hierarchy — your resolver, then the <code>.com</code> operator, then shop.com's own nameservers — until someone answers with the number (IP). <b>TTL</b> is how long each cache trusts the answer before asking again, which is exactly why a DNS change "hasn't propagated yet."</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh">$ dig +short api.shop.com          # just the answer (the IP)
+203.0.113.42
+$ dig api.shop.com                 # full: ANSWER section, TTL, which server
+;; ANSWER SECTION:
+api.shop.com.  300  IN  A  203.0.113.42        ← 300 = TTL (5 min cache)
+
+$ dig api.shop.com @8.8.8.8        # ask a SPECIFIC resolver (bypass local cache)
+$ dig MX shop.com +short           # mail records; also: NS, TXT, CNAME, AAAA
+$ dig +trace api.shop.com          # watch the FULL hierarchy walk (root → TLD → auth)
+
+# the record types you'll meet:
+#   A     name → IPv4          AAAA  name → IPv6
+#   CNAME name → another name  MX    mail servers
+#   TXT   arbitrary (SPF, verification)   NS  which nameservers are authoritative</pre></div>
+<div class="code out"><div class="code-label">Output — the "propagation" mystery, explained</div><pre>$ dig api.shop.com @8.8.8.8 +short    → 203.0.113.42   (new IP)
+$ dig api.shop.com @1.1.1.1 +short    → 198.51.100.9   (OLD IP — still cached!)
+# different resolvers, different answers = a TTL that hasn't expired everywhere.
+# "DNS hasn't propagated" is really "caches haven't expired yet" (wait out the TTL).</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>dig +short name</code> for a quick lookup; full <code>dig</code> to see TTL and the authoritative answer</li>
+<li><code>dig name @resolver</code> to compare resolvers when a change "hasn't propagated" — it's cache TTL, not magic</li>
+<li>Lower a record's TTL <i>before</i> a planned IP change so the cutover is fast (raise it back after)</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Blaming "the network" before ruling out DNS — resolve the name first (<code>dig</code>), THEN test the IP (topic 23)</li>
+<li>Expecting instant DNS changes — the old answer lives in caches worldwide until its TTL expires; plan around it</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> <code>dig</code> makes the invisible first step of every request visible — the name, the resolved IP, the TTL, and which server answered. Separating "can I resolve the name?" from "can I reach the IP?" (topic 23) instantly halves the search space of most connectivity problems, and the running joke "it's always DNS" is a joke because it's so often true.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> TTL-based caching is the source of the "propagation" myth — DNS doesn't push changes, caches <i>pull</i> fresh answers only after the old TTL expires, so a change is live on some resolvers and stale on others for up to the TTL. Comparing <code>dig @8.8.8.8</code> vs <code>@1.1.1.1</code> reveals it. And <code>CNAME</code> chains add latency and can't coexist with other records at the same name — a subtle config trap.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t10">
+<summary><span class="num">10</span><span class="ttl">resolv.conf, /etc/hosts &amp; the resolver order</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> <code>dig</code> resolves a name fine but your <i>app</i> gets the wrong IP, or a name resolves that shouldn't exist. The host's own resolution config — <code>/etc/hosts</code>, <code>/etc/resolv.conf</code>, nsswitch — decides what your programs actually see.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> before your host phones the DNS phone book (topic 9), it checks its own <b>little black book of personal contacts</b> (<code>/etc/hosts</code>) — and a name written there wins, no matter what the public phone book says. <code>/etc/resolv.conf</code> is the <b>phone number of the phone book itself</b> (which DNS servers to call). Get either wrong and your apps resolve names differently than <code>dig</code> does.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># /etc/hosts — static, LOCAL overrides (checked before DNS, usually):
+127.0.0.1   localhost
+10.0.5.99   db.internal        ← hardcode a name → IP (great for testing/overrides)
+
+# /etc/resolv.conf — WHICH DNS servers this host asks (topic 9):
+nameserver 10.0.0.2            ← the resolver to query
+search      svc.cluster.local  ← suffixes auto-appended to bare names
+options     ndots:5
+
+# the ORDER is set by /etc/nsswitch.conf:
+$ grep hosts /etc/nsswitch.conf
+hosts:  files dns              ← "files" (/etc/hosts) FIRST, then dns
+
+# why your app and dig can disagree:
+$ dig +short db.internal       → (public DNS answer, or NXDOMAIN)
+$ getent hosts db.internal     → 10.0.5.99   ← what the APP sees (respects /etc/hosts!)</pre></div>
+<div class="code out"><div class="code-label">Output — the tool that resolves like your app does</div><pre>$ getent hosts db.internal
+10.0.5.99  db.internal
+# getent uses the SAME path as your programs (/etc/hosts THEN dns) —
+# so it, not dig, tells you what the app actually resolves.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>getent hosts &lt;name&gt;</code> to see what your <i>apps</i> resolve (respects /etc/hosts + nsswitch) — <code>dig</code> queries DNS only</li>
+<li><code>/etc/hosts</code> entries to pin or override a name for testing (point <code>api.prod</code> at staging locally)</li>
+<li>Check <code>/etc/resolv.conf</code> when resolution is slow or wrong — the wrong/dead nameserver is a common culprit</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Debugging app resolution with <code>dig</code> alone — it skips <code>/etc/hosts</code>, so it can disagree with reality; use <code>getent</code></li>
+<li>Leaving stale <code>/etc/hosts</code> overrides in place — a forgotten test entry silently misroutes an app for weeks</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> understanding the resolution order (files → DNS, per nsswitch) resolves the maddening "dig works but my app connects to the wrong IP" class of bugs — because apps consult <code>/etc/hosts</code> first and <code>dig</code> never does. <code>getent hosts</code> is the tool that resolves <i>exactly</i> like your programs, making it the honest answer to "what does this host actually resolve this name to?"</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> <code>dig</code> and your application can genuinely disagree — <code>dig</code> talks straight to DNS, but your app (and <code>curl</code>, and <code>ping</code>) go through the system resolver, which checks <code>/etc/hosts</code> first. A stale hosts entry, a wrong <code>resolv.conf</code> nameserver, or the <code>search</code>/<code>ndots</code> settings (which quietly append suffixes and cause surprise lookups — a famous Kubernetes latency gotcha) all make apps resolve differently than <code>dig</code> suggests. Always confirm with <code>getent</code>.</div>
+</div>
+</details>
+<h2 class="cat net">The Web Stack</h2>
+
+<details class="card net-card" id="t11">
+<summary><span class="num">11</span><span class="ttl">HTTP anatomy — methods, status, headers</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> every API, webpage, and webhook is HTTP. Reading its methods, status codes, and headers fluently is the difference between guessing and knowing why a request behaves the way it does.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> an HTTP exchange is a <b>formal letter and its reply</b>. The <b>method</b> is your intent (GET = "please send me", POST = "here's something new"), the <b>path</b> is the recipient, <b>headers</b> are the envelope's metadata (who you are, what format you accept, your auth token), and the <b>status code</b> is the reply's opening line: 200 "here you go", 404 "no such person", 500 "our office caught fire", 401 "who are you?".</div></div>
+<div class="code"><div class="code-label">Code — a request and its parts</div><pre class="sh">$ curl -v https://api.shop.com/orders/42
+&gt; GET /orders/42 HTTP/2                 ← method + path
+&gt; host: api.shop.com                    ← which site (topic 14 vhosts)
+&gt; authorization: Bearer eyJ...          ← auth header
+&gt; accept: application/json              ← "reply in this format"
+&lt; HTTP/2 200                            ← status: success
+&lt; content-type: application/json
+&lt; cache-control: max-age=60             ← cache me for 60s
+
+# status code families — the FIRST digit is the story:
+2xx  success        200 OK  201 Created  204 No Content
+3xx  redirect       301 moved permanently  304 not modified (cached)
+4xx  YOUR fault     400 bad request  401 unauth  403 forbidden  404 not found  429 rate-limited
+5xx  SERVER fault   500 internal  502 bad gateway  503 unavailable  504 gateway timeout</pre></div>
+<div class="code out"><div class="code-label">The 502/503/504 distinction — critical for ops</div><pre>502 Bad Gateway      → proxy reached the backend, got garbage/none (backend crashed?)
+503 Unavailable      → proxy has NO healthy backend (all down / overloaded)
+504 Gateway Timeout  → backend accepted but didn't reply in time (slow query? topic 48)
+# these three are usually the PROXY (topic 14) reporting on your app, not the proxy itself.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Read the status-code family first: 4xx = the request is wrong, 5xx = the server is wrong — that alone halves the search</li>
+<li>Distinguish 502/503/504 — they point at backend-crashed vs no-backends vs backend-too-slow (topic 14)</li>
+<li>Inspect headers with <code>curl -v</code>/<code>-I</code> — auth, content-type, caching, and redirects are all right there</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Treating all 5xx as "server broken" without reading which — 504 is a timeout (often a slow DB query), a different fix than 502</li>
+<li>Ignoring <code>4xx</code> as "client problem, not mine" — a 401/403 often means <i>your</i> auth header or config is wrong</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> HTTP is a text protocol you can read with your eyes (<code>curl -v</code>) — method, headers, and status make every request self-describing. The status-code families are a diagnostic shortcut used everywhere from browser devtools to load-balancer logs to the DevOps playbook's ALB metrics (EKS topic 40): first digit tells you whose fault, the rest tells you what.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the 502/503/504 trio confuses teams because they're emitted by the <i>proxy</i> (nginx/ALB, topic 48) about your <i>backend</i> — so a 504 isn't "the load balancer is slow," it's "your app didn't answer in time" (often a slow database query, DevOps playbook territory). Reading which 5xx you got points at the right layer immediately, instead of restarting the proxy that was only the messenger.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t12">
+<summary><span class="num">12</span><span class="ttl">TLS &amp; certificates — how HTTPS trusts</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> the padlock, cert expiry pages, "certificate not trusted" errors, and TLS termination at a load balancer — HTTPS is HTTP wrapped in TLS, and the cert is how the client knows it's really talking to who it thinks.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> a TLS certificate is a <b>passport issued by a trusted authority</b>. When you connect, the server shows its passport (cert), your client checks it was issued by an authority it trusts (a Certificate Authority in its trust store), that it's for <i>this</i> name (shop.com), and that it hasn't expired. Only then do the two agree on a secret language (the encrypted session) nobody eavesdropping can read. A self-signed cert is a <b>hand-drawn passport</b> — real to you, trusted by no one else.</div></div>
+<div class="code"><div class="code-label">Code — inspect and verify certs</div><pre class="sh"># the handshake, then encrypted HTTP inside. Inspect the cert offered:
+$ echo | openssl s_client -connect shop.com:443 -servername shop.com 2&gt;/dev/null \
+    | openssl x509 -noout -subject -issuer -dates
+subject=CN = shop.com
+issuer=C = US, O = Let's Encrypt, CN = R3        ← who vouched for it
+notBefore=Jul  1 00:00:00 2026 GMT
+notAfter=Sep 29 23:59:59 2026 GMT                ← EXPIRY (the 3am page)
+
+$ curl -vI https://shop.com          # curl verifies the chain for you
+*  SSL certificate verify ok.        ← trusted, in-date, name matches
+$ curl https://self-signed.local
+curl: (60) SSL certificate problem: self signed certificate   ← not in trust store
+
+# -servername matters: one IP can host many certs (SNI) — topic 48</pre></div>
+<div class="code out"><div class="code-label">Output — the three ways a cert fails</div><pre>EXPIRED        notAfter in the past → "your connection is not private" (renew it!)
+NAME MISMATCH  cert says shop.com, you asked api.shop.com → wrong cert / missing SAN
+UNTRUSTED      issuer not in the client's CA store → self-signed or private CA</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Automate renewal (Let's Encrypt/certbot, or ACM in cloud) — expiry is the most common, most preventable outage</li>
+<li>Monitor <code>notAfter</code> with alerts weeks ahead — don't learn about expiry from users</li>
+<li>Terminate TLS at the load balancer/proxy (topic 13/14, DevOps playbook EKS topic 6) — central certs, offloaded crypto</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li><code>curl -k</code> / disabling verification to "fix" a cert error in production — you've turned off the entire point of TLS</li>
+<li>Manual cert renewal on a calendar reminder — humans forget; the expiry outage is legendary and 100% avoidable</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> TLS gives you encryption <i>and</i> authentication (you're talking to the real server) in one handshake, and because it wraps HTTP transparently, your app code doesn't change. Terminating it at the edge (LB/proxy) centralizes certificate management and moves crypto off your app servers — the standard pattern the DevOps playbook automates with ACM (EKS topic 40).</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> certificate <b>expiry</b> is the single most common self-inflicted outage on the internet — a cert quietly reaches <code>notAfter</code> and every client suddenly refuses to connect. Automate renewal and alert early. The other two: <b>name mismatch</b> (the cert's SANs don't include the name you requested — common with wildcards and multi-domain setups) and <b>untrusted issuer</b> (self-signed or an internal CA not in the client's trust store) — three distinct failures, three distinct fixes, all reported as "certificate problem."</div>
+</div>
+</details>
+
+<details class="card net-card" id="t13">
+<summary><span class="num">13</span><span class="ttl">Load balancing — L4 vs L7, and health checks</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> one server can't handle the traffic (or can't be a single point of failure), so requests spread across many. Load balancers do the spreading — and the L4-vs-L7 choice decides what they can do.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> a load balancer is the <b>host at a busy restaurant's door</b>, seating diners across many tables (servers). An <b>L4 host</b> just counts heads and points ("table 3, go") — fast, knows nothing about the order. An <b>L7 host</b> reads the reservation ("vegetarian party → the veg-kitchen section, VIP → the good tables") — it understands the <i>content</i> (URLs, headers) and routes smartly. Both quietly stop seating diners at a table where the waiter collapsed (health checks).</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># L4 (transport): routes by IP:port, blind to content. Fast, any protocol.
+#   AWS NLB, HAProxy TCP mode. Good for databases, gRPC, raw TCP.
+# L7 (application): reads HTTP — routes by host/path/header, does TLS, retries.
+#   AWS ALB, nginx, HAProxy HTTP mode. Good for web/APIs.
+
+# the feature that makes it all work — HEALTH CHECKS:
+#   LB polls each backend's /health every few seconds.
+#   fails N times → pulled from rotation (no traffic) → passes → back in.
+#   THIS is why a rolling deploy (DevOps playbook K8s topic 20/21) is zero-downtime.
+
+$ curl -H "Host: api.shop.com" http://lb-address/health   # what the LB checks
+{"status":"ok"}
+# algorithms: round-robin (default), least-connections, IP-hash (sticky sessions)</pre></div>
+<div class="code out"><div class="code-label">L4 vs L7 — pick by what you need to route on</div><pre>              L4 (NLB / TCP)            L7 (ALB / nginx / HTTP)
+sees          IP + port only            full HTTP: host, path, headers, cookies
+can route by  —                         /api → svc-a, /img → svc-b, host-based
+can do        any protocol, fastest     TLS termination, retries, rewrites, WAF
+use for       databases, gRPC, non-HTTP web apps, APIs, multi-service ingress</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>L7 (ALB/nginx) for web/APIs — host/path routing, TLS termination (topic 12), one entry for many services</li>
+<li>L4 (NLB) for non-HTTP or when you need raw speed and protocol transparency (databases, gRPC)</li>
+<li>Meaningful health-check endpoints (<code>/health</code> that checks real readiness) — they gate every deploy and failover</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>A health check that always returns 200 regardless of real state — the LB keeps sending traffic to broken backends</li>
+<li>L7 features (path routing, header inspection) expected from an L4 balancer — it can't see inside the packets</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> load balancers deliver both scale (spread load across N servers) and availability (health checks route around failures) — and the health-check mechanism is precisely what makes rolling deploys and node failures invisible to users (the exact machinery behind DevOps playbook K8s topics 20, 21 and EKS topic 40). L4 vs L7 is the "how smart does the routing need to be?" decision.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the health check is the whole game, and a <i>shallow</i> one is the classic trap — if <code>/health</code> returns 200 without checking the database/dependencies the app actually needs, the LB happily sends traffic to instances that then 500 every real request (a "healthy" pool serving errors). Conversely, a health check that's <i>too</i> strict (pings the DB, which blips) can pull every backend at once — the same self-inflicted-outage warning as liveness probes (topic 20 / DevOps playbook).</div>
+</div>
+</details>
+
+<details class="card net-card" id="t14">
+<summary><span class="num">14</span><span class="ttl">Reverse proxies — nginx as the front door</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> in front of your app sits a reverse proxy (nginx, most often) doing TLS, routing, caching, and buffering. Understanding it explains vhosts, upstreams, and most 502/504 errors (topic 11).</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> a reverse proxy is the <b>receptionist for a building full of teams</b>. Visitors (clients) only ever talk to reception; it checks IDs (TLS), reads the request ("Marketing? third floor" — routes by host/path to the right upstream app), handles the crowd so the teams aren't mobbed (buffering, rate-limiting), and keeps common answers on the desk (caching). The app servers stay hidden and safe on their private floors.</div></div>
+<div class="code"><div class="code-label">nginx — the config shape you'll read constantly</div><pre class="sh">server {
+    listen 443 ssl;
+    server_name api.shop.com;              # vhost: match by Host header (topic 11)
+    ssl_certificate     /etc/ssl/shop.crt; # TLS terminates HERE (topic 12)
+    ssl_certificate_key /etc/ssl/shop.key;
+
+    location /api/ {
+        proxy_pass http://app_backend;     # forward to the upstream app
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;   # preserve real client IP!
+        proxy_read_timeout 30s;            # too short → 504 (topic 11)
+    }
+    location /static/ { root /var/www; }   # serve files directly, skip the app
+}
+upstream app_backend {                     # the pool (basic L7 LB — topic 47)
+    server 10.0.5.20:3000;
+    server 10.0.5.21:3000;
+}
+$ nginx -t &amp;&amp; nginx -s reload             # TEST config, then reload with no downtime</pre></div>
+<div class="code out"><div class="code-label">Output — why your app sees the wrong client IP</div><pre>Without X-Forwarded-For: app logs show 10.0.5.1 (the PROXY) for every request.
+With it: app reads X-Forwarded-For → the REAL client IP.
+# every "all my traffic appears to come from one IP" bug = missing/!trusted XFF header.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>nginx -t</code> before every <code>reload</code> — it validates config and reloads with zero dropped connections</li>
+<li>Forward <code>X-Forwarded-For</code>/<code>X-Forwarded-Proto</code> and trust them in the app — or you lose real client IPs and HTTPS awareness</li>
+<li>Serve static files from the proxy, proxy only dynamic requests to the app — faster and lighter</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Blaming the proxy for 502/504 — they usually mean the <i>upstream</i> app crashed (502) or was too slow (504, raise <code>proxy_read_timeout</code> AND fix the slow endpoint)</li>
+<li>Reloading with an untested config — a syntax error can take the front door down; always <code>nginx -t</code> first</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> the reverse proxy centralizes the cross-cutting concerns — TLS termination (topic 12), routing by host/path (vhosts), rate limiting, caching, static files, real-client-IP forwarding — so your app stays simple and hidden. It's the same role the DevOps playbook's Ingress/ALB plays in Kubernetes (EKS topic 40): one smart front door for many backends.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> two evergreen proxy bugs. (1) <b>Lost client IP</b>: without forwarding and trusting <code>X-Forwarded-For</code>, your app sees the proxy's IP for every request, breaking geolocation, rate limits, and logs. (2) <b>Timeout mismatch</b>: <code>proxy_read_timeout</code> shorter than a legitimately slow endpoint yields a 504 while the backend is still working — but the real fix is usually the slow query (topic 11's point), not just a bigger timeout. And always <code>nginx -t</code>: a typo'd reload can shut the front door.</div>
+</div>
+</details>
+<h2 class="cat net">Debugging the Network</h2>
+
+<details class="card net-card" id="t15">
+<summary><span class="num">15</span><span class="ttl">ping &amp; ICMP — is it even alive?</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> the first question in any connectivity problem — is the host reachable at all? <code>ping</code> answers it at the IP layer (topic 1), before you worry about ports, DNS, or the app.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> <code>ping</code> is <b>knocking on the door and listening for a knock back</b>. It tells you the house exists, someone's home at the address, and roughly how far away it is (round-trip time) — but nothing about whether the shop <i>inside</i> is open (that's the port/app, topics 41/45). A quick knock, the cheapest possible reachability test.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh">$ ping -c4 shop.com          # -c4 = 4 packets then stop (not forever)
+PING shop.com (203.0.113.42): 56 data bytes
+64 bytes from 203.0.113.42: icmp_seq=0 ttl=54 time=12.3 ms   ← alive, 12ms away
+64 bytes from 203.0.113.42: icmp_seq=1 ttl=54 time=11.9 ms
+--- shop.com ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, avg 12.1ms
+
+# what the results mean:
+#   replies + low time      → reachable, healthy latency (topic 24)
+#   "Request timeout"       → no reply: host down, firewall, or ICMP blocked (see gotcha)
+#   partial loss (2/4)      → intermittent — congestion or a flaky link
+#   "Name or service..."    → DNS failed, not a reachability issue (topic 9)!
+$ ping -c1 10.0.5.1          # ping the GATEWAY to isolate local vs remote (topic 4)</pre></div>
+<div class="code out"><div class="code-label">Output — ping tells you WHICH problem you have</div><pre>ping shop.com  → "Name or service not known"   → it's DNS (topic 9), stop here
+ping 203.0.113.42 → replies                      → IP is reachable; problem is higher up
+ping 203.0.113.42 → 100% loss                    → unreachable OR ICMP blocked (topic 5)
+# ping the name AND the IP: if name fails but IP works, you've found DNS.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>ping -c4</code> as step one of any connectivity check — cheapest "is it alive?" test</li>
+<li>Ping the name AND the raw IP — name-fails-but-IP-works pinpoints DNS instantly (topic 9)</li>
+<li>Ping the gateway (topic 4) to split "my local network" from "the path beyond"</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Concluding "host is down" from ping timeout alone — many hosts/firewalls (and most cloud security groups) block ICMP while TCP works fine</li>
+<li>Reading a successful ping as "the service works" — ping proves the host answers, not that the port/app does (topics 5, 7)</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> ping isolates the IP layer in one command — reachable or not, and how far (latency, topic 58) — which is exactly the bottom rung of the debug-in-layers ladder (topic 23). Pinging both the name and the IP is the fastest DNS-vs-network split there is.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> ICMP is frequently blocked — AWS security groups, corporate firewalls, and hardened hosts often drop ping while happily serving TCP, so a ping timeout does NOT prove the host is down (test the actual port with <code>nc -zv</code>, topic 39). And ping resolving the name is itself a DNS test: "Name or service not known" is a resolver problem (topic 9), a completely different fix than "host unreachable."</div>
+</div>
+</details>
+
+<details class="card net-card" id="t16">
+<summary><span class="num">16</span><span class="ttl">traceroute &amp; mtr — where does the path break?</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> a host is unreachable or slow, and you need to know <i>where</i> along the path it fails — your network, your ISP, or somewhere in the middle. traceroute maps the hops; <code>mtr</code> watches them live.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> traceroute is <b>sending a series of scouts down a road, each told to stop one town further</b> and report back where they are. Scout 1 stops at the first town and radios its name; scout 2 reaches the second; and so on — building a map of every town (router) between you and the destination. When the scouts stop coming back at town 5, you've found where the road is blocked.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh">$ traceroute shop.com        # each line = one hop (router) toward the target
+ 1  10.0.5.1        1.2 ms      ← your gateway (topic 4)
+ 2  100.64.0.1      3.4 ms      ← your ISP
+ 3  72.14.x.x       11 ms       ← upstream
+ 4  * * *                       ← this hop didn't reply (often normal — see gotcha)
+ 5  203.0.113.42    12 ms       ← destination reached ✓
+
+# mtr = traceroute + ping, continuously — the better tool:
+$ mtr shop.com               # live-updating, shows LOSS% per hop
+  Host                    Loss%   Avg  Best  Wrst
+  1. 10.0.5.1              0.0%   1.1   0.9   2.1
+  2. 100.64.0.1            0.0%   3.2   2.8   9.4
+  5. 203.0.113.42         18.0%  142   12   890   ← loss + latency SPIKE starts here
+$ mtr --report -c 100 shop.com    # 100 samples, one-shot report for tickets</pre></div>
+<div class="code out"><div class="code-label">Output — reading where the trouble starts</div><pre>Loss/latency that STARTS at a hop and continues → the problem is at/after that hop.
+Loss at ONE middle hop but fine after → that router just deprioritizes ICMP (not a real problem).
+Path dies at hop 2 (your ISP) → not your fault, not the destination's — escalate to the ISP.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>mtr</code> over plain traceroute — continuous sampling reveals intermittent loss a single traceroute misses</li>
+<li>Locate blame: loss starting at your gateway (you), your ISP (them), or the far end (the destination)</li>
+<li><code>mtr --report</code> output in tickets — it's the evidence ISPs and providers actually act on</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Panicking over <code>* * *</code> or loss at a <i>single middle</i> hop — routers often rate-limit ICMP replies while forwarding real traffic fine</li>
+<li>Reading latency at intermediate hops as user-facing latency — only the <i>final</i> hop's RTT is what your users experience</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> traceroute/mtr turn "somewhere out there it's broken" into "loss begins at hop 5, which is my ISP's router" — assigning the problem to a specific party (you, your ISP, transit, or the destination). <code>mtr</code>'s continuous per-hop loss is the single best tool for intermittent, hard-to-catch network flakiness.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the biggest misread is treating loss/timeouts at a <i>middle</i> hop as the culprit — many routers deprioritize or rate-limit the ICMP that traceroute relies on, so they show loss while forwarding your actual traffic perfectly. What matters is loss that <b>starts at a hop and persists to the destination</b>, and the final hop's numbers. A single starred middle hop with a clean final hop is almost always a non-issue.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t17">
+<summary><span class="num">17</span><span class="ttl">curl mastery — the Swiss army knife of HTTP</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> test an API, debug a redirect, time a slow request, send auth headers, hit a specific backend — <code>curl</code> does it all, and reading its verbose output is a core daily skill.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> curl is a <b>programmable, brutally honest web browser with no chrome</b> — it makes exactly the request you specify and shows you exactly what came back, headers and all, no rendering, no hidden retries, no cache guessing. When a browser "works but the API doesn't" (or vice versa), curl is how you see the raw truth of the exchange.</div></div>
+<div class="code"><div class="code-label">Code — the flags you'll use forever</div><pre class="sh">$ curl -v https://api.shop.com/x     # -v = show request + response HEADERS (topic 11)
+$ curl -I https://shop.com           # -I = HEADERS ONLY (HEAD request)
+$ curl -L http://shop.com            # -L = FOLLOW redirects (301/302)
+$ curl -s -o /dev/null -w "%{http_code}\n" https://shop.com   # just the status code
+
+# sending data &amp; auth:
+$ curl -X POST -H "Content-Type: application/json" \
+       -H "Authorization: Bearer $TOKEN" \
+       -d '{"name":"mug"}' https://api.shop.com/products
+
+# the debugging power moves:
+$ curl -w "@curl-format.txt" -o /dev/null -s https://shop.com   # TIMING breakdown
+$ curl --resolve shop.com:443:10.0.5.20 https://shop.com        # test ONE backend
+#        └ bypass DNS: "pretend shop.com = this IP" (topic 10) — test a specific server
+$ curl -k https://self-signed.local   # skip cert check (DEBUG ONLY — topic 46)</pre></div>
+<div class="code out"><div class="code-label">Output — the timing breakdown that finds the slow part</div><pre>$ curl -w "dns: %{time_namelookup}  connect: %{time_connect}  tls: %{time_appconnect}  ttfb: %{time_starttransfer}  total: %{time_total}\n" -so /dev/null https://shop.com
+dns: 0.004  connect: 0.031  tls: 0.089  ttfb: 1.240  total: 1.245
+#                                              └ TTFB huge, rest tiny → the SERVER is slow
+#                                                (not DNS, not network) — go look at the app.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>curl -v</code> to see the real request/response headers; <code>-w</code> timing to find WHICH phase is slow (DNS/connect/TLS/TTFB)</li>
+<li><code>--resolve name:port:IP</code> to test one specific backend behind a load balancer or DNS (topic 10/13)</li>
+<li>Scriptable checks: <code>-s -o /dev/null -w "%{http_code}"</code> for health checks and CI smoke tests</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li><code>-k</code> (skip cert verification) anywhere but local debugging — it disables TLS's entire security guarantee (topic 12)</li>
+<li>Debugging "the site is slow" without the <code>-w</code> timing breakdown — it tells you if it's DNS, TLS, or the server, saving hours of guessing</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> curl is the one tool spanning the whole web stack — DNS (topic 9), TLS (topic 12), HTTP (topic 11), and backend selection (topic 13) — and its <code>-w</code> timing breakdown localizes "slow" to a specific phase in one command. It's the scriptable, honest client behind most health checks, smoke tests, and API debugging.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the huge time-saver people miss is the <code>-w</code> timing breakdown — <code>time_namelookup</code> vs <code>time_connect</code> vs <code>time_appconnect</code> (TLS) vs <code>time_starttransfer</code> (TTFB) tells you instantly whether "slow" is DNS, TCP, TLS, or the server thinking. Without it, teams blame "the network" for what the breakdown reveals is a slow database query (high TTFB, everything else fast). And <code>--resolve</code> is the clean way to test one backend without editing <code>/etc/hosts</code> (topic 10).</div>
+</div>
+</details>
+
+<details class="card net-card" id="t18">
+<summary><span class="num">18</span><span class="ttl">tcpdump — the packet wiretap</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> when higher-level tools disagree or lie, drop to the wire. <code>tcpdump</code> captures the actual packets — the ground truth of what left and arrived — for when "curl says X but the app says Y."</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> if <code>strace</code> (topic 16) wiretaps a program's calls to the kernel, <code>tcpdump</code> wiretaps the <b>wire itself</b> — every packet in and out, unfiltered by any application's opinion of what happened. It's the security-camera footage of the network: when accounts conflict, you go watch the tape of what <i>actually</i> crossed the cable.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># capture is cheap; the ART is FILTERING (or you drown):
+$ sudo tcpdump -i any -n port 5432          # -n = no DNS lookups; only :5432 traffic
+$ sudo tcpdump -i eth0 host 10.0.5.99       # only to/from one host
+$ sudo tcpdump -i any 'port 443 and host shop.com'
+$ sudo tcpdump -i any -c 20 port 80          # -c 20 = stop after 20 packets
+
+# see the TCP handshake (topic 5) live — SYN, SYN-ACK, ACK:
+$ sudo tcpdump -i any -n 'tcp port 5432 and (tcp[tcpflags] &amp; tcp-syn != 0)'
+10.0.5.20.44321 &gt; 10.0.5.99.5432: Flags [S]      ← SYN (client trying)
+# ...if you see [S] repeated with NO [S.] reply → firewall dropping (topic 5/20)
+
+# capture to a file, analyze in Wireshark later:
+$ sudo tcpdump -i any -w capture.pcap port 443
+$ sudo tcpdump -r capture.pcap -n            # read it back</pre></div>
+<div class="code out"><div class="code-label">Output — the "timed out" mystery, solved on the wire</div><pre>$ sudo tcpdump -i any -n host db.prod and port 5432
+10.0.5.20.51234 &gt; 10.0.8.44.5432: Flags [S]     ← we sent SYN
+10.0.5.20.51234 &gt; 10.0.8.44.5432: Flags [S]     ← retry... no reply
+10.0.5.20.51234 &gt; 10.0.8.44.5432: Flags [S]     ← retry... still nothing
+# SYNs going out, ZERO replies coming back = a firewall is DROPPING us (topic 5,20).
+# not the app, not DNS — the packets never get an answer. Case closed.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Always filter (<code>host</code>, <code>port</code>, <code>-c N</code>) — an unfiltered capture on a busy host is an unreadable firehose</li>
+<li>Confirm ground truth: are packets leaving? arriving? getting replies? — settles app-vs-network disputes</li>
+<li>Capture to <code>-w file.pcap</code> and open in Wireshark for deep analysis (TLS handshakes, retransmits, resets)</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Running <code>tcpdump</code> with no filter on a production host — the volume overwhelms you (and can add load); scope it tightly</li>
+<li>Reaching for tcpdump first — exhaust ping/ss/curl (topics 15/7/17) before the wiretap; it's the last resort, not the first</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> tcpdump is the final arbiter — when every higher tool gives conflicting stories, the packets don't lie. Seeing SYNs leave with no reply (firewall drop), or replies arriving that the app claims it never got (app bug), ends debates instantly. It's the network twin of <code>strace</code> (topic 16): the ground-truth wiretap for when logs and tools disagree.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> two traps. (1) <b>No filter</b> = drowning: on a busy host an unfiltered capture scrolls faster than you can read and adds overhead — always constrain by <code>host</code>/<code>port</code>/<code>-c</code>. (2) Forgetting <code>-n</code> makes tcpdump do a DNS lookup <i>per packet</i>, which both slows it and pollutes your capture with DNS traffic (and can hang if DNS is the very thing that's broken). The reading skill — SYN with no SYN-ACK = dropped (topic 5) — is what turns raw packets into a diagnosis.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t19">
+<summary><span class="num">19</span><span class="ttl">TCP states &amp; TIME_WAIT — the socket lifecycle</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> <code>ss</code> shows thousands of connections in <code>TIME_WAIT</code>, or a server "runs out of ports" under load. TCP connections have a lifecycle, and its states explain both — and prevent a panic over what's usually normal.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> <code>TIME_WAIT</code> is the <b>mandatory cooling-off period after a phone call ends</b> — the line isn't reused for a couple of minutes, in case a late "goodbye" packet from the old call is still in transit and would confuse a brand-new call reusing the same numbers. Thousands of them isn't a leak; it's thousands of <i>recently, cleanly closed</i> calls still in their cooldown. Alarming to see, usually harmless.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># the lifecycle (see it with ss -tan):
+#   LISTEN → SYN-SENT/RECV → ESTABLISHED → (close) → TIME_WAIT → gone
+$ ss -tan state time-wait | wc -l         # count them
+$ ss -s                                    # summary of all states
+Total: 4821
+TCP:   4102 (estab 210, timewait 3801, ...)   ← lots of TIME_WAIT
+
+# TIME_WAIT is on the side that CLOSED FIRST (usually the client).
+# it lasts ~60s (2×MSL) then vanishes on its own. Normal for busy clients.
+
+# the ACTUAL problem it can cause — ephemeral port exhaustion:
+$ sysctl net.ipv4.ip_local_port_range      # the pool of outbound ports
+32768 60800                                 # ~28k — a client making MANY short
+                                            # connections can exhaust these
+# the REAL fix (not tcp_tw_recycle — that's dangerous/removed):
+#   → reuse connections (HTTP keep-alive, connection pools) — topic 45
+#   → connect via fewer, longer-lived connections instead of many short ones</pre></div>
+<div class="code out"><div class="code-label">Output — the states and what they mean</div><pre>ESTABLISHED  active, carrying data — the healthy state
+TIME_WAIT    recently closed (by this side), cooling down ~60s — usually FINE
+CLOSE_WAIT   the OTHER side closed, but YOUR app hasn't — a pile of these = APP BUG
+             (your code isn't closing sockets — the real leak to worry about)</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Recognize a pile of <code>TIME_WAIT</code> as normal for busy clients — it self-clears in ~60s</li>
+<li>Fix port exhaustion the right way: connection reuse (keep-alive, pooling — topic 45), not risky sysctl hacks</li>
+<li>Worry about <code>CLOSE_WAIT</code> instead — many of those means YOUR app is leaking un-closed sockets (topic 15)</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Enabling <code>net.ipv4.tcp_tw_recycle</code> to "fix" TIME_WAIT — it breaks NAT'd clients (topic 8) and was removed from modern kernels for good reason</li>
+<li>Confusing <code>TIME_WAIT</code> (normal, self-clearing) with <code>CLOSE_WAIT</code> (your app bug) — opposite meanings, opposite actions</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> knowing the TCP state machine stops a common false alarm (TIME_WAIT is healthy) and points at the real one (CLOSE_WAIT = your app isn't closing sockets, an fd leak per topic 15). It also explains why connection <i>reuse</i> — keep-alive, pooling — matters so much under load: it avoids the constant open/close churn that fills the ephemeral port pool.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the internet is full of advice to enable <code>tcp_tw_recycle</code> to clear TIME_WAIT — <b>don't</b>: it silently breaks connectivity for clients behind NAT (topic 8) and was removed from Linux 4.12+ entirely. TIME_WAIT is working as designed; the fix for its symptoms is fewer, longer-lived connections. And the truly worrying state is <code>CLOSE_WAIT</code> — a growing pile means your application accepted a close from the peer but never called <code>close()</code> itself, leaking file descriptors (topic 15) until it hits the limit.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t20">
+<summary><span class="num">20</span><span class="ttl">iptables &amp; nftables — the host firewall</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> "the port is open, the app is listening (topic 7), but I still can't connect" — often a firewall silently dropping packets. Understanding the host firewall explains those timeouts (topic 5) and how to inspect the rules.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> the firewall is a <b>bouncer with a checklist, reading it top to bottom</b> for every packet. The first matching rule wins — "allow SSH from the office," "allow web from anyone," and finally the house policy "everyone else: turn away." A <b>DROP</b> is the silent bouncer who just ignores you (you time out, topic 39); a <b>REJECT</b> is the one who says "no" to your face (instant connection refused). Order matters: a "deny all" rule placed too high blocks everything below it.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># inspect current rules (the FIRST thing to do — don't guess):
+$ sudo iptables -L -n -v                  # -n numeric, -v verbose (packet counts!)
+Chain INPUT (policy DROP)                  ← default: drop anything not allowed
+ pkts target  prot source        destination  ports
+ 8231 ACCEPT  tcp  10.0.5.0/24   0.0.0.0/0    tcp dpt:22    ← SSH from subnet
+45102 ACCEPT  tcp  0.0.0.0/0     0.0.0.0/0    tcp dpt:443   ← HTTPS from anywhere
+    0 ACCEPT  tcp  0.0.0.0/0     0.0.0.0/0    tcp dpt:5432  ← 0 packets... blocked upstream?
+
+# nftables — the modern replacement (same concepts, cleaner syntax):
+$ sudo nft list ruleset
+
+# cloud note: SECURITY GROUPS are firewalls too, OUTSIDE the host —
+# a host with no iptables rules can still be blocked by its security group (topic 25)!
+$ sudo iptables -L -n | grep 5432          # is the app port even allowed?</pre></div>
+<div class="code out"><div class="code-label">Output — DROP vs REJECT decides your symptom (topic 5)</div><pre>rule: DROP    → client sees "Connection timed out"  (silent — packet vanishes)
+rule: REJECT  → client sees "Connection refused"    (explicit RST sent back)
+# so: "timed out" often = firewall DROP;  "refused" = nothing listening OR a REJECT.
+# the packet-count column (-v) shows which rules are actually being hit.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>iptables -L -n -v</code> (packet counts) when a listening port (topic 7) still times out — the firewall is the prime suspect</li>
+<li>Remember rules match top-to-bottom, first-match-wins — order is as important as the rules themselves</li>
+<li>In cloud, check BOTH the host firewall AND the security group (topic 25) — either can silently block you</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Flushing rules (<code>iptables -F</code>) on a remote box with a default DROP policy — you can lock yourself out mid-command</li>
+<li>Assuming "no host firewall rules" = "not firewalled" in the cloud — the security group outside the host may be dropping you</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> the firewall closes the loop on the topic 39 mystery — a DROP rule is exactly why a reachable host with a listening service still "times out," while REJECT gives "refused." Reading the rules (with packet counts) tells you whether traffic is even reaching your service, and the same first-match-wins model scales up to cloud security groups and Kubernetes NetworkPolicies (DevOps playbook K8s topic 32).</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the DROP-vs-REJECT distinction ties directly to topic 39's refused-vs-timeout: a firewall <b>DROP</b> makes the client hang until timeout (the packet silently disappears), while <b>REJECT</b> sends back a rejection for an instant "refused." So "times out" strongly implies a firewall drop somewhere, not a down service. And the cloud gotcha bites hardest — engineers check <code>iptables</code>, find it empty, and conclude "not firewalled," missing that the AWS security group or NACL (topic 25) — a firewall <i>outside</i> the host — is doing the dropping.</div>
+</div>
+</details>
+<details class="card net-card" id="t21">
+<summary><span class="num">21</span><span class="ttl">ssh mastery &amp; tunnels — the remote-access power tool</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> SSH is how you reach every server, but it's far more than a remote shell — keys, config shortcuts, jump hosts, and tunnels that reach services you can't touch directly.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> SSH is an <b>encrypted private corridor</b> you build on demand between two buildings. Normally you walk it to reach a remote office (shell). But you can also run <b>pneumatic tubes through the corridor</b> (tunnels): a local port on your desk that secretly pops out inside the remote building next to a locked-away service (a database on a private network), letting you reach it as if it were on your own desk.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># keys, not passwords (topic 4: the key MUST be chmod 600):
+$ ssh-keygen -t ed25519              # generate a modern key
+$ ssh-copy-id user@server           # install your public key there
+
+# ~/.ssh/config — stop typing long commands:
+#   Host prod
+#     HostName 203.0.113.42
+#     User deploy
+#     IdentityFile ~/.ssh/prod_ed25519
+#     ProxyJump bastion              ← auto-hop through a jump host!
+$ ssh prod                          # now just this
+
+# the killer feature — LOCAL port forward (reach a private DB):
+$ ssh -L 5432:db.internal:5432 bastion
+#        └local└──remote target──┘ └through this host
+$ psql -h localhost -p 5432         # your laptop → tunnel → private db.internal!
+
+$ ssh -D 1080 bastion               # SOCKS proxy — browse AS the bastion
+$ scp file prod:/tmp/               # copy over ssh;  rsync -e ssh (topic 27)</pre></div>
+<div class="code out"><div class="code-label">Output — the tunnel reaching an unreachable service</div><pre>$ ssh -L 5432:db.internal:5432 bastion    # db.internal has NO public IP (topic 8)
+$ psql -h localhost -p 5432 -U app
+psql (16.4)  →  app_prod=&gt;                 ← connected to a private DB, via the tunnel.
+# your packets: laptop:5432 → [encrypted ssh] → bastion → db.internal:5432</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Keys over passwords everywhere; <code>~/.ssh/config</code> with <code>ProxyJump</code> for bastion/jump-host hops</li>
+<li><code>ssh -L</code> tunnels to reach private databases/dashboards behind a bastion (topic 8's "inbound is hard")</li>
+<li>Key at <code>chmod 600</code> (topic 4) — SSH refuses loose-permissioned keys by design</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Password auth or shared keys on production — per-person keys give per-person audit and revocation</li>
+<li>Leaving long-lived tunnels open as ad-hoc infrastructure — they're for debugging, not a substitute for proper access (VPN/LB)</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> SSH is remote shell, file transfer (scp/rsync — topic 27), jump-host chaining, and port tunneling in one tool — and the tunnel is the pragmatic answer to NAT's inbound problem (topic 8): you can't route <i>to</i> a private service, but you can build an encrypted corridor <i>out</i> from it. <code>~/.ssh/config</code> turns all of it into short, memorable commands.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the most common SSH snag is key permissions — a private key that's group/world-readable (topic 4) makes SSH silently refuse it with "permissions are too open," falling back to password or failing; <code>chmod 600</code> fixes it. And tunnel direction confuses people: <code>-L</code> (local forward) opens a port on <i>your</i> machine that reaches a service on the remote side — the common case; <code>-R</code> (remote) is the reverse and rarely what you want. Read <code>-L local:target:port</code> as "expose <i>target:port</i> on my <i>local</i> port."</div>
+</div>
+</details>
+
+<details class="card net-card" id="t22">
+<summary><span class="num">22</span><span class="ttl">ip addr &amp; interfaces — the modern net toolkit</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> what's this host's IP? which interface? is the link even up? The <code>ip</code> command (replacing <code>ifconfig</code>) is the single tool for addresses, links, and routes (topic 4).</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> if the host is a building, its <b>network interfaces are the doors to the outside</b> — <code>eth0</code> the front door, <code>lo</code> the internal intercom (localhost), <code>docker0</code>/<code>veth</code> the doors to the container annex. <code>ip</code> is the facilities manager's clipboard: which doors exist, whether each is open (UP) or bolted (DOWN), and what address is painted on each.</div></div>
+<div class="code"><div class="code-label">Code — one tool, three jobs</div><pre class="sh">$ ip -c addr                 # (or: ip a) — interfaces + their IP addresses
+1: lo:    &lt;LOOPBACK,UP&gt; inet 127.0.0.1/8              ← localhost (topic 7)
+2: eth0:  &lt;BROADCAST,UP,LOWER_UP&gt; inet 10.0.5.20/24  ← the real address (topic 2)
+3: docker0: inet 172.17.0.1/16                        ← container bridge (topic 34)
+
+$ ip link                    # just the interfaces + UP/DOWN state + MAC (topic 3)
+$ ip route                   # the routing table (topic 4)
+$ ip neigh                   # the ARP cache (topic 3)
+
+# the state words that matter:
+#   UP + LOWER_UP  → interface enabled AND cable/carrier present (good)
+#   UP, NO-CARRIER → enabled but no physical link (unplugged / down switch port)
+#   DOWN           → administratively disabled
+$ ip link set eth0 up        # bring an interface up
+$ ip -s link show eth0       # -s = stats: RX/TX packets, errors, drops</pre></div>
+<div class="code out"><div class="code-label">Output — the old vs new commands</div><pre>OLD (deprecated)      NEW (use these)
+ifconfig              ip addr
+route -n              ip route
+arp -a                ip neigh
+netstat -tlnp         ss -tlnp   (topic 7)
+# the net-tools are often not even installed on modern minimal images.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li><code>ip a</code> to find this host's address/interface; <code>ip link</code> to check UP/DOWN and carrier</li>
+<li>Learn <code>ip</code> (addr/link/route/neigh) — it's the one modern tool and it's on every current distro</li>
+<li><code>ip -s link</code> for interface error/drop counters when a NIC is flaky</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Relying on <code>ifconfig</code>/<code>route</code>/<code>netstat</code> — deprecated and frequently absent from minimal images/containers</li>
+<li>Confusing <code>UP</code> (admin-enabled) with <code>LOWER_UP</code> (carrier present) — an interface can be UP with no cable (NO-CARRIER)</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> the <code>ip</code> suite unifies what used to be four separate legacy tools (ifconfig/route/arp/netstat) into one consistent command covering addresses (topic 2), links (topic 3), and routes (topic 4) — the layers 2–3 toolkit in one place. Knowing it means you're productive on any modern box, including the minimal container images where the old tools don't exist.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> muscle memory for <code>ifconfig</code> fails on modern minimal systems — it's deprecated and often not installed, so scripts and habits built on net-tools break on fresh containers/distros; the <code>ip</code> equivalents always work. And the UP-vs-LOWER_UP distinction catches people: an interface shown as <code>UP</code> is administratively enabled, but <code>NO-CARRIER</code> means no cable/link — "the interface is up but there's no connectivity" is a physical-layer (topic 1) problem, not a config one.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t23">
+<summary><span class="num">23</span><span class="ttl">The "is it down?" runbook — debug in layers</span><span class="star">★ used daily</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> "the service is unreachable" — the most common network page. Instead of guessing, walk the layers (topic 1) bottom-up: DNS → reachability → port → TLS → app. Each step eliminates half the search space.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> diagnosing a dead phone line, one segment at a time: is the number in the directory (DNS)? does the building answer a knock (ping)? is <i>that specific office</i> staffed (port)? do they speak your language (TLS)? and finally, do they actually help you (the app)? You don't suspect the office staff before confirming the building even exists — you check each segment in order, and the first broken one is your answer.</div></div>
+<div class="code"><div class="code-label">The runbook — run these in order, stop at the first failure</div><pre class="sh"># 1. DNS — does the name resolve? (topic 9/10)
+$ dig +short api.shop.com          → no answer?  → DNS problem. STOP.
+$ getent hosts api.shop.com        → what the APP actually resolves (topic 10)
+
+# 2. REACHABILITY — is the host up at the IP layer? (topic 15)
+$ ping -c3 &lt;the-resolved-IP&gt;        → (ICMP may be blocked — don't over-trust)
+$ mtr &lt;IP&gt;                          → where does the path break? (topic 16)
+
+# 3. PORT — is the service listening &amp; reachable? (topic 5/7/20)
+$ nc -zv &lt;IP&gt; 443                   → "refused" = nothing there / "timeout" = firewall
+$ ss -tlnp | grep :443             → (ON THE SERVER) is it even bound? (topic 7)
+
+# 4. TLS — does the handshake &amp; cert check pass? (topic 12)
+$ curl -vI https://api.shop.com    → cert expired? name mismatch?
+
+# 5. APP — does it actually respond correctly? (topic 11/17)
+$ curl -v https://api.shop.com/health  → 200? 502 (backend down)? 504 (slow)?
+$ curl -w timing... (topic 17)          → which phase is slow?</pre></div>
+<div class="code out"><div class="code-label">Output — the layer that fails IS the diagnosis</div><pre>dig fails            → DNS (topic 9)             — not a "network" problem
+ping/mtr fails       → routing/host down (38,49,50)
+nc refused           → service down / wrong port (39,41)
+nc timeout           → firewall / security group (54,59)
+curl cert error      → TLS/expiry (46)
+curl 5xx             → the app / its backend (45)   — now it's an app problem</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Always bottom-up: DNS → ping → port → TLS → app — the first failing rung names the culprit and its team</li>
+<li>Test the name AND the IP separately (topics 9/15) — it isolates DNS from reachability in two commands</li>
+<li>Keep this runbook literally pinned — under incident pressure, a checklist beats intuition every time</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Starting at the app ("must be a code bug") before confirming DNS resolves and the port is reachable — you'll debug the wrong layer for an hour (topic 1)</li>
+<li>Stopping at the first tool you know instead of the first tool that <i>fails</i> — walk the layers in order</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> this runbook turns the vaguest page — "it's down" — into a deterministic, five-step bisection of the whole stack, where each layer confirmed eliminates everything below it and each failure points at a specific owner (DNS team, network, firewall, TLS, or app). It's the OSI/TCP-IP model (topic 1) operationalized, and it's the single most valuable habit in this playbook.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the universal mistake is debugging <i>down</i> from assumptions instead of <i>up</i> from facts — engineers "know" it's the app and burn an hour there while <code>dig</code> would have shown DNS failing in two seconds, or <code>nc</code> would have revealed a firewall timeout (topic 20). Discipline beats intuition: confirm each layer before climbing. And beware ICMP being blocked (topic 15) — a failed ping isn't proof the host is down; confirm the actual port with <code>nc</code>.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t24">
+<summary><span class="num">24</span><span class="ttl">Latency vs bandwidth — why "fast" is two things</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> "the connection is slow" means two totally different things — high latency (each round-trip takes long) or low bandwidth (the pipe is narrow). They have different causes and different fixes, and confusing them wastes effort.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> <b>latency is the length of the road; bandwidth is the number of lanes.</b> A single sports car (one small request) is limited by road length — a 200ms round-trip to another continent can't be sped up by adding lanes. A thousand trucks (a big file) are limited by lanes — widen the highway (more bandwidth) and they all arrive sooner. Adding lanes doesn't shorten the road, and shortening the road doesn't add lanes.</div></div>
+<div class="code"><div class="code-label">Code</div><pre class="sh"># LATENCY — round-trip time (topic 15):
+$ ping -c5 api.shop.com
+  time=142 ms          ← 142ms EACH way-and-back. A cross-continent road.
+# 100 sequential requests × 142ms = 14 seconds, no matter how fat the pipe.
+
+# BANDWIDTH — throughput (how much per second):
+$ iperf3 -c speedtest-host           # measure real throughput
+  [SUM]  0-10s   1.10 GBytes  942 Mbits/sec    ← ~1 Gbit of lanes
+$ curl -w "%{speed_download}\n" -so /dev/null https://host/big.iso
+
+# the tell for WHICH one is your problem:
+#   small requests slow, big transfers fine → LATENCY (distance, too many round-trips)
+#   big transfers slow, pings fast          → BANDWIDTH (narrow pipe, congestion)</pre></div>
+<div class="code out"><div class="code-label">Output — the fix depends entirely on which</div><pre>Problem: API feels sluggish, each call 200ms, payloads tiny
+  → LATENCY. Fixes: fewer round-trips (batch calls, HTTP keep-alive topic 45,
+    CDN/edge closer to users, caching). More bandwidth does NOTHING.
+Problem: downloads/backups crawl, but ping is 5ms
+  → BANDWIDTH. Fixes: bigger link, compression (topic 27 -z), parallel streams.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Diagnose which "slow" you have: <code>ping</code> for latency, <code>iperf3</code>/big-file <code>curl</code> for bandwidth</li>
+<li>Attack latency with fewer round-trips — batching, keep-alive (topic 11), caching, edge/CDN closer to users</li>
+<li>Attack bandwidth with compression (<code>-z</code>, topic 27), parallelism, or a bigger link</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Buying more bandwidth to fix a latency problem — a chatty app doing 50 sequential round-trips won't speed up with a fatter pipe</li>
+<li>Ignoring round-trip count — N sequential requests pay the latency N times; the fix is <i>fewer</i> trips, not faster ones</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> separating latency from bandwidth is what makes performance work targeted instead of guesswork — one is distance/round-trips (fixed by fewer trips and edge proximity), the other is pipe width (fixed by bigger links and compression). Most "slow API" complaints are latency × too many round-trips, which is why batching and keep-alive (topic 11) — not bigger servers — are the usual cure.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the expensive mistake is throwing bandwidth at a latency problem — a mobile app making 40 sequential API calls at 150ms each takes 6 seconds regardless of a gigabit connection, because the bottleneck is round-trip <i>count</i> × distance, not pipe width. The fix is architectural (batch into one call, use keep-alive to skip repeated handshakes, put a CDN closer to users), and no amount of extra bandwidth touches it. Conversely, latency-optimizing a bulk transfer that's bandwidth-bound is equally futile.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t25">
+<summary><span class="num">25</span><span class="ttl">Cloud networking mapped — VPC = your Linux knowledge</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> everything in Parts I–II maps almost 1:1 onto AWS/cloud networking. Once you see that a VPC is just subnets, route tables, and firewalls with fancy names, cloud networking stops being a separate subject.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> a cloud VPC is <b>your Linux networking knowledge wearing a business suit</b>. The concepts are identical — subnets are subnets (topic 2), route tables are route tables (topic 4), firewalls are firewalls (topic 20) — AWS just gives them capitalized names, a web console, and an API. Learn the plumbing once (this playbook), and the "cloud networking" exam is mostly vocabulary translation.</div></div>
+<div class="code"><div class="code-label">The translation table</div><pre class="sh">Linux / this playbook        AWS VPC equivalent
+──────────────────────────────────────────────────────────
+subnet + CIDR (topic 2)     VPC + Subnets (same CIDR math!)
+routing table (topic 4)     Route Tables (local + 0.0.0.0/0 → IGW)
+default gateway (topic 4)   Internet Gateway (IGW) / NAT Gateway
+NAT / masquerade (topic 8)  NAT Gateway (private subnet egress)
+iptables firewall (topic 20) Security Groups (stateful) + NACLs (stateless)
+/etc/hosts, DNS (topic 9/4) Route 53 + VPC DNS (the .2 resolver)
+reverse proxy / LB (47/48)   ALB (L7) / NLB (L4) — same L4-vs-L7 choice
+ss listeners (topic 7)      "is the SG allowing the port?" is the new question
+
+# the #1 cloud gotcha, in one line:
+#   host firewall CLEAN + service listening + STILL timing out
+#   → it's the SECURITY GROUP (a firewall OUTSIDE the host — topic 54's warning)</pre></div>
+<div class="code out"><div class="code-label">Output — debugging is the SAME runbook (topic 23), plus one layer</div><pre>can't reach an EC2 service?  walk topic 57's layers, THEN also check:
+  • Security Group     — does it allow your source IP on that port? (stateful firewall)
+  • NACL               — subnet-level allow/deny (stateless — needs BOTH directions!)
+  • Route table        — is there a route to IGW/NAT? (topic 4)
+  • public IP / subnet  — is it even in a public subnet with a path out? (topic 8)</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Map cloud concepts to the fundamentals you know — VPC/subnet/route-table/SG are topics 36/38/54 renamed</li>
+<li>Add "check the Security Group" as the extra rung on the topic 57 runbook for any cloud host</li>
+<li>Remember SGs are <i>stateful</i> (reply traffic auto-allowed), NACLs are <i>stateless</i> (must allow both directions)</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Treating "cloud networking" as unrelated to Linux networking — it's the same model; the plumbing knowledge transfers directly</li>
+<li>Debugging only inside the host — the Security Group (a firewall the host can't even see) is the most common cloud "it times out" cause (topic 20)</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> the fundamentals in this playbook ARE cloud networking — CIDR math (topic 2), routing (topic 4), NAT (topic 8), firewalls (topic 20), and DNS (topic 9) map directly onto VPC subnets, route tables, NAT gateways, security groups, and Route 53. The DevOps playbook's EKS networking (topics 5, 6) is this same knowledge one more layer up. Learn it once here; apply it everywhere.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the cloud's signature gotcha is the firewall you can't see from the host — you SSH in, <code>iptables</code> is empty, the service is listening (topic 7), and it <i>still</i> times out, because the Security Group (an external, stateful firewall — topic 54) is dropping your traffic. And NACLs trip people because they're <i>stateless</i>: unlike Security Groups, they don't auto-allow return traffic, so you must permit both the inbound request AND the outbound reply, or connections half-open and hang.</div>
+</div>
+</details>
+
+<details class="card net-card" id="t26">
+<summary><span class="num">26</span><span class="ttl">Capstone — one HTTP request, every layer</span><span class="star">★ the goal</span><span class="chev">▶</span></summary>
+<div class="body">
+<p class="scenario"><b>Scenario:</b> the whole playbook in one journey. You type <code>curl https://api.shop.com/orders</code> — trace what happens through all 60 topics, from DNS to the app process and back. If you can narrate this, you're operating, not guessing.</p>
+<div class="analogy"><span class="ic">🧠</span><div><b>Analogy:</b> the <b>full postal journey of one letter</b> — you look up the address (DNS), the post office plots the route (routing), it's sealed in tamper-proof security envelopes (TLS), trucked across cities (TCP/IP hops), received at the mailroom (load balancer/proxy), handed to the right clerk (the app process), who reads it, pulls a file (the database), writes a reply, and the whole trip runs in reverse. Sixty topics, one round-trip.</div></div>
+<div class="code"><div class="code-label">The journey — every step is a topic you now own</div><pre class="sh">$ curl https://api.shop.com/orders
+
+1. RESOLVE    getent/dig: api.shop.com → 203.0.113.42   (topics 9,10)
+              └ checks /etc/hosts, then DNS; TTL-cached (topic 9)
+2. ROUTE      not my subnet → default route → gateway    (topics 2,4)
+              └ NAT rewrites my private source IP on the way out (topic 8)
+3. TCP        3-way handshake to 203.0.113.42:443        (topic 5)
+              └ SYN → SYN-ACK → ACK  (a firewall/SG could DROP here — 54,59)
+4. TLS        handshake: verify cert (name, expiry, CA)  (topic 12)
+              └ agree on encryption; now the channel is private
+5. HTTP       GET /orders + headers, encrypted inside TLS (topic 11)
+6. PROXY      hits nginx/ALB → routes to a healthy backend (topics 13,14)
+              └ health checks chose a live app server (topic 13)
+7. APP        a process (topic 9) accepts the socket (fd — topic 15),
+              queries the DB, builds the response
+8. RETURN     200 + JSON flows back through the same layers, reversed
+9. OBSERVE    every hop logged (topic 30), timed (curl -w, topic 51)
+
+# and when ANY step fails, the topic-57 runbook tells you which:
+#   step 1 fails → DNS │ 2-3 → routing/firewall │ 4 → TLS │ 6 → LB │ 7 → app</pre></div>
+<div class="code out"><div class="code-label">Output — the round-trip, and where each failure would surface</div><pre>curl -w "dns:%{time_namelookup} tcp:%{time_connect} tls:%{time_appconnect} ttfb:%{time_starttransfer}\n"
+dns:0.004  tcp:0.031  tls:0.089  ttfb:0.140      ← each phase = a topic, timed.
+# slow dns→topic43 │ slow tcp→routing/39 │ slow tls→46 │ slow ttfb→the app.
+# you can now point at the exact layer for ANY symptom. That's the whole game.</pre></div>
+<div class="dodont">
+<div class="do"><h4>✅ Do — good use cases</h4><ul>
+<li>Narrate this journey out loud — the gaps you stumble on are exactly the topics to revisit</li>
+<li>Map every incident to a step: which layer failed? (topic 23 is this capstone as a runbook)</li>
+<li>Use <code>curl -w</code> timing (topic 17) to see the real journey's phases on any request, live</li>
+</ul></div>
+<div class="dont"><h4>❌ Don't — anti-patterns</h4><ul>
+<li>Treating these 60 topics as separate trivia — they're one connected system; this request touches most of them in sequence</li>
+<li>Guessing at a failing layer when the journey (and topic 57) tells you exactly where to look</li>
+</ul></div>
+</div>
+<div class="benefit"><b>Pattern &amp; benefit:</b> count what one <code>curl</code> touches: DNS (43,44), routing and NAT (36,38,42), TCP and its firewalls (39,54,59), TLS (46), HTTP (45), proxy and load balancing (47,48), the process/fd/memory model that runs the app (9,14,15), and the logs/timing that observe it all (30,51) — narrated through the debug-in-layers discipline (57). The playbook isn't 60 facts; it's one system, and this is the tour. Master this journey and "the network is down" becomes "layer 4 is timing out, check the security group" — every time.</div>
+<div class="gotcha"><b>Gotcha — why it goes wrong:</b> the failure modes are now all ones you can name and place: name won't resolve = DNS (43); "network unreachable" = routing (38); "connection refused" = nothing listening (39,41); "timed out" = a firewall/SG dropping (54,59); cert error = TLS (46); 502/504 = the backend crashed or stalled (45,48); 137 in the app logs = it got OOM-killed (14). The playbook doesn't stop failures — it turns every one from a mystery into a <i>layer with a number</i>. That is what "pro" means.</div>
+</div>
+</details>
+
+<div class="part">🎯 <span>Quiz — Test Yourself</span></div>
+<div class="quiz" id="quiz">
+  <div class="qhead">
+    <p class="qintro">Answer 5 per round. Your progress and score are <b>saved in this browser</b> — come back anytime and continue where you left off.</p>
+    <span class="qmeta">Score: <b id="qscore">0</b> / <span id="qans">0</span> answered · <span id="qtotal">0</span> total</span>
+  </div>
+  <div class="progress"><i id="qbar"></i></div>
+  <div id="qwrap"></div>
+  <div class="btns">
+    <button class="check" id="qcheck" onclick="checkRound()">Check answers</button>
+    <button class="next" id="qnext" onclick="nextRound()" style="display:none">Next round &rarr;</button>
+    <span class="roundscore" id="qround"></span>
+    <button class="reset" onclick="resetQuiz()">Reset quiz</button>
+  </div>
+  <div class="done" id="qdone"><h3 id="qdonetitle"></h3><p id="qdonebody"></p></div>
+</div>
+
+<footer>
+  <p>Networking Pro Playbook · 26 topics · built for Balasaheb</p>
+  <p style="margin-top:10px"><a href="https://baluraut.github.io/field-library/">↩ Back to the Field Library</a> · companion: the Linux playbook</p>
+</footer>
+
+</main>
+</div>
+
+<script>
+/* ---------- font size ---------- */
+let lvl = 0;
+function fz(d){
+  lvl = d === 0 ? 0 : Math.max(-2, Math.min(3, lvl + d));
+  document.documentElement.style.fontSize = (16 + lvl * 1.5) + "px";
+}
+/* ---------- expand / collapse + TOC ---------- */
+function toggleAll(open){ document.querySelectorAll("details.card").forEach(d => d.open = open); }
+function openTarget(hash){
+  if(!hash) return;
+  const el = document.querySelector(hash.startsWith("#") ? hash : "#" + hash);
+  if(el && el.tagName === "DETAILS") el.open = true;
+}
+document.querySelectorAll(".toc a").forEach(a =>
+  a.addEventListener("click", () => openTarget(a.getAttribute("href"))));
+openTarget(location.hash);
+
+/* ---------- shell highlighter ---------- */
+const ESC = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function shRest(s){
+  const re = /(#.*$)|("(?:[^"\\]|\\.)*"|'[^']*')|(\$\{?[A-Za-z_]\w*\}?|\$\()/g;
+  let out = "", last = 0, m;
+  while((m = re.exec(s))){
+    out += ESC(s.slice(last, m.index));
+    const cls = m[1] ? "com" : m[2] ? "s" : "v";
+    out += '<span class="' + cls + '">' + ESC(m[0]) + "</span>";
+    last = m.index + m[0].length;
+  }
+  return out + ESC(s.slice(last));
+}
+function hlSh(src){
+  return src.split("\n").map(line => {
+    let m = line.match(/^(\s*\$\s+)(\S+)([\s\S]*)$/);
+    if(m) return '<span class="prompt">' + ESC(m[1]) + '</span><span class="cmd">' + ESC(m[2]) + "</span>" + shRest(m[3]);
+    m = line.match(/^(\s*)(#.*)$/);
+    if(m) return ESC(m[1]) + '<span class="com">' + ESC(m[2]) + "</span>";
+    return shRest(line);
+  }).join("\n");
+}
+document.querySelectorAll("pre.sh").forEach(p => p.innerHTML = hlSh(p.textContent));
+
+/* ---------- quiz ---------- */
+const QS = [
+ {q:"A TCP connection test gives 'Connection refused' (not 'timed out'). This means…", o:["A firewall silently dropping","The host is down","The host is reachable but nothing is listening on that port (or a REJECT)","DNS failed"], a:2, w:"Refused = a RST came back: host up, port closed. Timed out = silence = firewall DROP or host dead (topics 5, 20)."},
+ {q:"You changed a DNS record but some users still hit the old IP. Why?", o:["DNS is broken","It didn't save","Resolvers cache the old answer until its TTL expires — 'propagation' is really cache expiry","Restart the nameserver"], a:2, w:"DNS caches pull fresh answers only after the old TTL expires. Lower TTL before planned changes (topic 9)."},
+ {q:"CIDR: which is the BIGGER network?", o:["/24 > /16","/16 is bigger than /24 (fewer prefix bits = more host addresses)","Same size","Depends on the IP"], a:1, w:"More prefix bits = smaller network. /16 = 65,536 addresses, /24 = 256. The number is inverse to size (topic 2)."},
+ {q:"dig resolves a name correctly, but your APP connects to a different IP. Why?", o:["The app is buggy","Apps check /etc/hosts first (per nsswitch); dig queries DNS only — use getent hosts","DNS poisoned","curl caches DNS"], a:1, w:"Apps go through the system resolver (files then DNS); dig skips /etc/hosts. getent hosts resolves like your app (topic 10)."},
+ {q:"A host can reach its own subnet but not the internet. Most likely cause?", o:["DNS is down","A missing or wrong default route (no signpost for 'everything else')","Cable unplugged","TLS expired"], a:1, w:"'Network is unreachable' for external IPs = no default route. Local subnet works (direct delivery) (topic 4)."},
+ {q:"On an EC2 host: iptables is empty, the service is listening (ss confirms), but connections still time out. Why?", o:["The app is broken","The Security Group — a stateful firewall OUTSIDE the host — is dropping the traffic","DNS problem","Disk full"], a:1, w:"The classic cloud gotcha: a firewall the host can't see. Check the Security Group (and NACLs) (topics 20, 25)."},
+ {q:"An API feels slow: 40 sequential calls, each 150ms, payloads tiny. The fix?", o:["Buy bandwidth","Reduce round-trips — batch, keep-alive, move closer (CDN). It's LATENCY, not bandwidth","More servers","Compress responses"], a:1, w:"Latency × round-trip count, not pipe width. 40×150ms = 6s regardless of bandwidth. Fewer trips is the only fix (topics 11, 24)."},
+ {q:"'curl -w' shows dns/tcp/tls tiny but ttfb (time_starttransfer) huge. Where's the problem?", o:["DNS","The network","The SERVER/app is slow to respond (often a slow DB query) — not DNS, TLS, or network","TLS handshake"], a:2, w:"High TTFB with fast earlier phases = the server is thinking (e.g. slow query). The breakdown localizes 'slow' to a phase (topic 17)."},
+ {q:"TCP's three-way handshake is…", o:["SYN → ACK → FIN","SYN → SYN-ACK → ACK (then data flows on an established connection)","Just SYN","GET → 200 → close"], a:1, w:"SYN, SYN-ACK, ACK establishes the connection before any data. UDP skips this — fire and forget (topics 5, 6)."},
+ {q:"Lots of sockets stuck in TIME_WAIT after a load test. Is that a bug?", o:["Yes, a leak","No — TIME_WAIT is the normal 2*MSL wait on the side that closed first, ensuring stray packets die","Restart needed","A DDoS"], a:1, w:"TIME_WAIT is by design on the active closer, so late duplicate segments can't corrupt a new connection reusing the port (topic 19)."},
+];
+document.getElementById("qtotal").textContent = QS.length;
+const STORE_KEY = "networking_only_quiz_v1";
+let answers = {};
+try { answers = JSON.parse(localStorage.getItem(STORE_KEY)) || {}; } catch(e){ answers = {}; }
+function saveAnswers(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(answers)); } catch(e){} }
+function qScore(){ let s=0; for(const id in answers){ if(answers[id]===QS[id].a) s++; } return s; }
+function nextUnanswered(){ const ids=[]; for(let i=0;i<QS.length;i++){ if(!(i in answers)) ids.push(i); if(ids.length===5) break; } return ids; }
+let currentRound = [];
+function updateMeta(){ const ans=Object.keys(answers).length; document.getElementById("qscore").textContent=qScore(); document.getElementById("qans").textContent=ans; document.getElementById("qbar").style.width=(100*ans/QS.length)+"%"; }
+function renderRound(){
+  const wrap=document.getElementById("qwrap"); currentRound=nextUnanswered(); document.getElementById("qround").textContent="";
+  if(currentRound.length===0){
+    wrap.innerHTML=""; document.getElementById("qcheck").style.display="none"; document.getElementById("qnext").style.display="none";
+    const d=document.getElementById("qdone"); d.style.display="block";
+    document.getElementById("qdonetitle").textContent="🎉 All "+QS.length+" done!";
+    document.getElementById("qdonebody").textContent="Final score: "+qScore()+" / "+QS.length+(qScore()===QS.length?" — flawless! 🚀":" — review the misses, then Reset to run it again.");
+    updateMeta(); return;
+  }
+  document.getElementById("qdone").style.display="none"; document.getElementById("qcheck").style.display=""; document.getElementById("qnext").style.display="none";
+  wrap.innerHTML=currentRound.map(id=>{ const x=QS[id];
+    return "<div class='q' data-id='"+id+"'><p class='qt'>"+(x.t?"<span class='tag'>"+ESC(x.t)+"</span>":"")+ESC(x.q)+"</p>"+
+      x.o.map((o,j)=>"<label><input type='radio' name='q"+id+"' value='"+j+"'> "+ESC(o)+"</label>").join("")+
+      "<p class='why'>"+ESC(x.w)+"</p></div>"; }).join("");
+  updateMeta();
+}
+function checkRound(){
+  let all=true; currentRound.forEach(id=>{ if(!document.querySelector(".q[data-id='"+id+"'] input:checked")) all=false; });
+  if(!all){ document.getElementById("qround").textContent="Answer all 5 first."; return; }
+  let correct=0;
+  currentRound.forEach(id=>{ const div=document.querySelector(".q[data-id='"+id+"']"); const sel=div.querySelector("input:checked"); const chosen=+sel.value; answers[id]=chosen;
+    const labels=div.querySelectorAll("label"); labels[QS[id].a].classList.add("right"); if(chosen!==QS[id].a) sel.closest("label").classList.add("wrong"); else correct++; div.classList.add("revealed"); });
+  saveAnswers(); updateMeta();
+  document.getElementById("qcheck").style.display="none"; document.getElementById("qnext").style.display="";
+  document.getElementById("qround").textContent="Round: "+correct+" / "+currentRound.length;
+}
+function nextRound(){ renderRound(); document.getElementById("quiz").scrollIntoView({behavior:"smooth",block:"start"}); }
+function resetQuiz(){ answers={}; saveAnswers(); renderRound(); }
+renderRound();
+</script>
+</body>
+</html>
